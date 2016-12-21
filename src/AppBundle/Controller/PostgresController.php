@@ -13,6 +13,9 @@ use AppBundle\Entity\Product;
 use AppBundle\Repository\TagRepository;
 use \Doctrine\Common\Util\Debug;
 
+// Klasse PostgresController (Kommentar für GIT)
+// Zweiter Kommentar
+
 class PostgresController extends Controller
 {
     /**

@@ -13,6 +13,8 @@ use AppBundle\Entity\Product;
 use AppBundle\Repository\TagRepository;
 use \Doctrine\Common\Util\Debug;
 
+// Klasse TestController (Kommentar für GIT)
+
 class TestController extends Controller
 {
     /**
