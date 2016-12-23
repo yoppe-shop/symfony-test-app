@@ -1,9 +1,18 @@
 {% extends 'base.html.twig' %}
-{% use 'main_nav.html.twig' %}
-{% block body %}
-<div>Hallo liebe User!</div>
-{% endblock %}
 
-{% block stylesheets %}
-<link rel='stylesheet' id='css'  href='' type='text/css' media='all' />
+{% block stylesheets %}<link rel="stylesheet" href="{{ asset('css/special.css') }}" />
+{% endblock %}
+{% block javascript %}<script language="javascript" type="text/javascript" src="{{ asset('js/test.js') }}"></script>
+{% endblock %}
+{% block title %}Amazon-Test Startseite{% endblock %}
+{% block body %}
+{{ include("main_nav.html.twig") }}
+<div>Hallo liebe User!</div>
+<div id="test1">Erster User: {{ names.0 }}</div>
+<div>Namen durchlaufen:</div>
+{% for name in names %}
+<div id="test2">{{ name }}</div>
+{% endfor %}
+<div>Produktname: {{ product.getName() }}</div>
+<div>Artikelnummer: {{ product.getModel() }}</div>
 {% endblock %}

@@ -15,6 +15,7 @@ use \Doctrine\Common\Util\Debug;
 
 // Klasse PostgresController (Kommentar für GIT)
 // Zweiter Kommentar
+// Zweiter Kommentar
 
 class PostgresController extends Controller
 {

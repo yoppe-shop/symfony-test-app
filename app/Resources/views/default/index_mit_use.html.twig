@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+{% use "main_nav.html.twig" %}
+
+{% block stylesheets %}<link rel="stylesheet" href="special.css">
+{% endblock %}
+{% block title %}Amazon-Test Startseite{% endblock %}
+{% block body %}
+{% block main_nav %}
+{{ parent() }}
+{% endblock %}
+<div>Hallo liebe User!</div>
+{% endblock %}
+

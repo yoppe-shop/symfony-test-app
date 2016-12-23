@@ -55,7 +55,7 @@ class Product
 
     public function getName()
     {
-        return $this->Name;
+        return $this->name;
     }
 
     public function setName($name)

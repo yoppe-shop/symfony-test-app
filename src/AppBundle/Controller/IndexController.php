@@ -20,9 +20,15 @@ class IndexController extends Controller
      */
     public function indexAction(Request $request)
     {
-        // replace this example code with whatever you need
+        $product = new Product();
+        $product->setName("XProdukt");
+        $product->setModel("70000");
+        $product->setCreated('now');
+
         return $this->render('default/index.html.twig', [
             'base_dir' => realpath($this->getParameter('kernel.root_dir').'/..').DIRECTORY_SEPARATOR,
+            'names' => ['Ariane', 'Berta', 'Caesar', 'Detlef'],
+            'product' => $product,
         ]);
     }
 
