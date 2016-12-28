@@ -1,8 +1,14 @@
-body {
-    font-family: arial, sans-serif;   
+html {
+    font-size: 100%;
 }
 
-#test1 {
-    font-family: arial, sans-serif;
-    color: red;
+body {
+    font-size: 1em;
+    font-family: "Lucida Grande", "Lucida Sans Unicode", Helvetica, Arial, sans-serif;
+    color: #000;
+}
+
+h1 {
+    font-size: 1.5rem;
+    font-weight: bold;
 }
