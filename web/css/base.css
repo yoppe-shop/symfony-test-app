@@ -8,7 +8,40 @@ body {
     color: #000;
 }
 
+strong, b {
+    font-weight: bold;
+}
+
+em, i {
+    font-style: italic;
+}
+
+h1, h2, h3, h4 {
+    font-weight: bold;
+}
+
 h1 {
     font-size: 1.5rem;
-    font-weight: bold;
+}
+
+h2 {
+    font-size: 1.25rem;
+}
+
+h3 {
+    font-size: 1.15rem;
+}
+
+h4 {
+    font-size: 1rem;
+}
+
+p {
+    color: #fa3;
+    text-decoration: none;
+}
+
+a {
+    color: #fa3;
+    text-decoration: none;
 }
