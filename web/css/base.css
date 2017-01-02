@@ -1,3 +1,5 @@
+@charset "utf-8";
+
 html {
     font-size: 100%;
 }
@@ -39,6 +41,7 @@ h4 {
 p {
     color: #fa3;
     text-decoration: none;
+    font-family: arial, sans-serif;   
 }
 
 a {
