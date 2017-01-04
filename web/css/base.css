@@ -1,5 +1,9 @@
 @charset "utf-8";
 
+* {
+    margin: 0;
+}
+
 html {
     font-size: 100%;
 }
@@ -8,6 +12,8 @@ body {
     font-size: 1em;
     font-family: "Lucida Grande", "Lucida Sans Unicode", Helvetica, Arial, sans-serif;
     color: #000;
+    width: 90%;
+    margin: 0 auto;
 }
 
 strong, b {
@@ -47,4 +53,51 @@ p {
 a {
     color: #fa3;
     text-decoration: none;
+}
+
+header {
+    background-color: black;
+    color: white;
+    padding: 20px;
+    margin: 0px;
+    width: 100%;
+    height: 80px;
+}
+
+#main_navi,
+#main_navi ul
+#main_navi ul li a {
+    margin: 0;
+    padding: 0;
+}
+
+#main_navi ul {
+    list-style-type: none;
+    display: table;
+    width: 100%;
+    background-color:red;
+}
+
+#main_navi ul li {
+    display: table-cell;
+    text-align: center;
+    white-space: nowrap;
+    border-left: 1px solid grey;
+    border-right: 1px solid right;
+}
+
+#main_navi ul li:first-child {
+    border-left-style: none;
+}
+
+
+#main_navi ul li:last-child {
+    border-right-style: none;
+}
+
+#main_navi ul li a {
+    display: block;
+    text-decoration: none;
+    font-weight: normal;
+    color: black;
 }

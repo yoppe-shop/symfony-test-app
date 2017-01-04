@@ -33,6 +33,16 @@ class Product
     */
     protected $name = '';
 
+    /**
+    * @ORM\OneToMany(targetEntity="ProductAttribute", mappedBy="product")
+    */
+    protected $productAttributes;
+
+    public function __construct()
+    {
+        $this->productAttributes = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
     public function __toString()
     {
         return $this->name();
@@ -71,5 +81,30 @@ class Product
     public function setCreated($created)
     {
         $this->created = new \DateTime($created);
+    }
+
+    public function getProductAttributes()
+    {
+        return $this->productAttributes;
+    }
+
+    public function hasProductAttribute(ProductAttribute $productAttribute)
+    {
+        return $this->productAttributes->contains($productAttribute);
+    }
+
+    public function addProductAttribute(ProductAttribute $productAttribute)
+    {
+        $this->productAttributes->add($productAttribute);
+    }
+
+    public function removeProductAttribute(ProductAttribute $productAttribute)
+    {
+        $this->productAttributes->add($productAttribute);
+    }
+
+    public function clearProductAttributes()
+    {
+        $this->productAttributes->clear();
     }
 }

@@ -1,28 +1,35 @@
 <?php
 
-namespace AppBundle\Tests\Controller;
+namespace Tests\AppBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use AppBundle\Controller\TestingController;
 
-class TestingControllerTest extends WebTestCase
+class TestingControllerTest extends \PHPUnit_Framework_TestCase
 {
-    public function testGetValueAction()
+    public function testGetProducts()
     {
-        $client = static::createClient();
-
-        $crawler = $client->request('GET', '/testing/get_value');
-
-        $this->assertGreaterThan(
-            999,
-            $client->getResponse()->getContent()
-        );
+        $testing = new TestingController();
+        $result = $testing->getProducts();
+        $this->assertEquals(3, count($result));
     }
 
-    public function testGetHtml()
+    public function testGetNumber()
     {
-        $client = static::createClient();
-        $crawler = $client->request('GET', '/testing/get_html');
+        $testing = new TestingController();
+        $result = $testing->getNumber();
 
-        $this->assertCount(3, $crawler->filter('div'));
+        $this->assertEquals(2000, $result);
+    }
+
+    /**
+     * @depends testGetNumber
+     */
+    public function testGetValue()
+    {
+        $testing = new TestingController();
+        $result = $testing->getValueAction();
+
+        $this->assertEquals("Ausgabe von \$i: 1002", $result->getContent());
+        // $this->assertTrue($result->getContent() == 999);
     }
 }
