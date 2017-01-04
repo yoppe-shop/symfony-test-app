@@ -71,4 +71,31 @@ class TestController extends Controller
             'Das ist die Testausgabe!'
         );
     }
+
+    /**
+    * @Route("/test/service_test")
+    */
+    public function serviceTest()
+    {
+        $utils = $this->get('utils');
+        $debug = $this->get('debug');
+
+        $em = $this->getDoctrine()->getManager();
+
+        $article = new Article();
+
+        $data = [
+            'title' => 'Testtitel',
+            'teaser' => 'Testteaser',
+            'news' => 'Testnews',
+            'createdAt' => 'now',
+        ];
+
+        $utils->map($article, $data);
+        $debug->pr($data);
+
+        return new Response (
+            ''
+        );
+    }
 }

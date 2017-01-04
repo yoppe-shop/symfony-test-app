@@ -1,7 +1,7 @@
-service:
-    resource: "@ServiceBundle/Controller/"
-    type:     annotation
-    prefix:   /
+#service:
+#    resource: "@ServiceBundle/Controller/"
+#    type:     annotation
+#    prefix:   /
 
 app:
     resource: "@AppBundle/Controller/"
