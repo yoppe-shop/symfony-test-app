@@ -12,6 +12,8 @@ use AppBundle\Entity\User;
 use AppBundle\Entity\Product;
 use AppBundle\Repository\TagRepository;
 use \Doctrine\Common\Util\Debug;
+use Doctrine\ORM\Query\ResultSetMapping;
+use Doctrine\ORM\Query\ResultSetMappingBuilder;
 
 // Klasse TestController (Kommentar für GIT)
 
@@ -33,39 +35,32 @@ class TestController extends Controller
     */
     public function modelAction()
     {
+        $utils = $this->get('utils');
+        $debug = $this->get('debug');
         $em = $this->getDoctrine()->getManager();
-        
-        $article = new Article();
-        $article->setTitle("Symfony");
-        $article->setTeaser("Symfony Teaser");
-        $article->setNews("Die neuesten Symfony News");
-        $article->setCreatedAt("now");
-        $article->setPublishAt("now");
 
-        $user = $em
-            ->getRepository('AppBundle:User')
-            ->find(1)
-        ;
+        $sql = "
+            SELECT p.id as product_id, model, name, pa.product_option_id 
+            FROM products p
+            INNER JOIN product_attributes pa ON pa.product_id = p.id
+            WHERE p.id > '1'
+        ";
 
-        $article->setUser($user);
-        $em->persist($article);
-        $em->flush();
+        //$rsm = new ResultSetMapping();
+        //$rsm->addEntityResult('AppBundle:Product', 'p');
+        //$rsm->addJoinedEntityResult('AppBundle:ProductAttribute', 'pa', 'p', 'productAttributes');
 
-        $articles = $em->createQuery('
-            SELECT a, u 
-            FROM Entities\Article a 
-            LEFT JOIN a.users u
-        ');
+        $rsm = new ResultSetMappingBuilder($em);
+        $rsm->addRootEntityFromClassMetadata('AppBundle:Product', 'p', ['id' => 'product_id']);
+        $rsm->addJoinedEntityFromClassMetadata('AppBundle:ProductAttribute', 'pa', 'p', 'productAttribute');
 
-        // Debug::dump($articles, 5, false);
-        $tag = new Tag();
-        $tag->setTitle("HTML");
+        $query = $em->createNativeQuery($sql, $rsm);
+        $products = $query->getResult();
+        foreach ($products as $product) {
+            echo "Produkt: " . $product->getModel() . " " . $product->getName() . "<br />";
+        }
 
-        $tags = $em
-            ->getRepository('AppBundle:Tag')
-            ->findDuplicates($tag)
-        ;
-        Debug::dump($tags, 5, false);
+        $debug->pr($products);
 
         return new Response (
             'Das ist die Testausgabe!'
