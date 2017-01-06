@@ -73,6 +73,12 @@ class MockTest extends \PHPUnit_Framework_TestCase
         $em->expects($this->any())
             ->method('getRepository')
             ->will($this->returnValue($productRepository));
+        $em->expects($this->any())
+            ->method('persist')
+            ->will($this->returnValue(true));
+        $em->expects($this->any())
+            ->method('flush')
+            ->will($this->returnValue(true));
 
         $dbTest = new DbTestsController();
         $result = $dbTest->getProducts($em);

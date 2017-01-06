@@ -30,9 +30,17 @@ class DbTestsController extends Controller
 
     public function getProducts(ObjectManager $em)
     {
-        $productsRepository = $em
-            ->getRepository('AppBundle:Product');
-        $products = $productsRepository->findAll();
-        return $products;  
+        $product = $em
+            ->getRepository('AppBundle:Product')
+            ->find(1);
+        echo "Anfangs: " . $product->getName() . "\n";
+        $product->setName("XXL - Salami - Pizza");
+        $em->persist($product);
+        $em->flush();
+        $product = $em
+            ->getRepository('AppBundle:Product')
+            ->find(1);
+        echo "Nach Saven: " . $product->getName() . "\n";
+        return $product;
     }
 }

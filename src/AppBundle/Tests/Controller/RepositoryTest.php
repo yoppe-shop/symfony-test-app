@@ -2,6 +2,7 @@
 namespace Tests\AppBundle\Repository;
 
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use AppBundle\Controller\DbTestsController;
 
 class RepositoryTest extends KernelTestCase
 {
@@ -22,14 +23,12 @@ class RepositoryTest extends KernelTestCase
             ->getManager();
     }
 
-    public function testSearchByCategoryName()
+    public function testGetDbProducts()
     {
-        $products = $this->em
-            ->getRepository('AppBundle:Product')
-            ->findAll()
-        ;
+        $dbTest = new DbTestsController();
+        $result = $dbTest->getProducts($this->em);
 
-        $this->assertCount(3, $products);
+        $this->assertCount(3, $result);
     }
 
     /**
