@@ -1,0 +1,18 @@
+Templates rendern:
+
+        return $this->render('default/top_articles.html.twig', array(
+            'base_dir' => realpath($this->getParameter('kernel.root_dir').'/..').DIRECTORY_SEPARATOR,
+            'articles' => $articles,
+            'names' => ['Ariane', 'Berta', 'Caesar', 'Detlef'],
+            'articleEntity' => $article,
+        ));
+
+Im Template:
+
+<div>Erster User: {{ names.0 }}</div>
+<div>Namen durchlaufen:</div>
+{% for name in names %}
+<div>{{ name }}</div>
+{% endfor %}
+<div>{{ articleEntity.getName() }}
+

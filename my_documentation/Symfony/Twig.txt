@@ -1,0 +1,25 @@
+Twig:
+
+Prints a variable or the result of an expression to the template:
+
+{{ ... }}
+
+Does something, e.g. loops etc.:
+
+{% ... %}
+
+Comments:
+
+{# ... #}
+
+Filters, e.g. makes a variable to uppercase:
+
+{{ title|upper }}
+
+For-loop in Twig with the cycle() function:
+
+{% for i in 1..10 %}
+    <div class="{{ cycle(['even', 'odd'], i) }}">
+      <!-- some HTML here -->
+    </div>
+{% endfor %}

@@ -1,0 +1,40 @@
+$em = $this->getDoctrine()->getEntityManager();
+$connection = $em->getConnection();
+$statement = $connection->prepare("
+	INSERT INTO eans2
+	(ean_name, type, assigned)
+	VALUES
+	(:ean_name, :type, :assigned);
+");
+for( $i=0; $i < 1000; $i++ )
+{
+	$statement->execute(['ean_name' => $i, 'type' => 0, 'assigned' => 0]);
+}
+
+
+Oder:
+
+          $em = $this->getDoctrine()->getEntityManager('pg');
+            $db = $em->getConnection();
+            $stmt = $db->prepare("UPDATE products SET created=:created, model=:model WHERE id=:id;");
+            $ds = [
+                'id' => '4',
+                'created' => '2016-12-11 11:11:11',
+                'model' => '41111',
+            ];
+
+            foreach ($ds as $key => &$value)
+            {
+                $stmt->bindParam(":".$key, $ds[$key]);
+            }
+
+            $stmt->execute();
+            foreach ($db->query('SELECT * FROM products', \PDO::FETCH_ASSOC) as $row) {
+                foreach ($row as $key => $value) {
+                    echo $key . '=' . $value . '<br />';
+                }
+                echo "<hr>";
+            }
+        } catch (\PDOException $e) {
+            echo $e->getMessage();
+        }

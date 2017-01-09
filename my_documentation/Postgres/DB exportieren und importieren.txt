@@ -1,0 +1,84 @@
+https://www.a2hosting.com/kb/developer-corner/postgresql/import-and-export-a-postgresql-database
+
+Export a PostgreSQL database
+
+You can export a PostgreSQL database to a file by using the pg_dump command line program, or you can use phpPgAdmin.
+Method #1: Use the pg_dump program
+
+To export a PostgreSQL database using the pg_dump program, follow these steps:
+
+    Access the command line on the computer where the database is stored. For example, if the database is on another web hosting account or with another web hosting provider, log in to the account using SSH. If you have physical access to the computer, you can open a DOS or terminal window to access the command line.
+    Type the following command, and then press Enter. Replace USERNAME with your username, and DBNAME with the name of the database that you want to export:
+
+    pg_dump -U USERNAME DBNAME > dbexport.pgsql
+
+    This article uses the dbexport.pgsql filename for the exported database, but you can name the file whatever you want.
+    Type your password at the Password prompt.
+
+    The dbexport.pgsql file now contains all of the data for the DBNAME database. If the dbexport.pgsql file is on a remote computer, download the file to your local computer.
+
+    You may receive the following error messages when you try to export a database:
+
+    pg_dump: SQL command failed
+    pg_dump: Error message from server: ERROR:  permission denied for schema topology
+    pg_dump: The command was: LOCK TABLE topology.topology IN ACCESS SHARE MODE
+
+    These errors occur because some server database templates include PostGIS with restricted access permissions. To export a PostgreSQL database without this data, type the following command instead of the command listed in step 2:
+
+    pg_dump -U USERNAME DBNAME -N topology -T spatial_ref_sys > dbexport.pgsql
+
+Method #2: Use phpPgAdmin
+
+To export a PostgreSQL database using phpPgAdmin, follow these steps:
+
+    Log in to cPanel.
+    In the Databases section of the cPanel home screen, click phpPgAdmin.
+    In the left pane of the phpPgAdmin window, expand Servers, expand PostgreSQL, and then click the name of the database that you want to export.
+    On the top menu bar, click Export.
+    Under Format, click Structure and data.
+    Under Options, in the Format list box, select SQL.
+    Under Options, click Download.
+    Click Export.
+    In the file dialog, select a location to save the file, and then click Save.
+
+Create a new PostgreSQL database and assign a user
+
+Before you can import the database, you must create a new database in cPanel and assign a user to it. To do this, follow these steps:
+
+    Log in to your A2 Hosting cPanel account.
+    In the Databases section of the cPanel home screen, click PostgreSQL Databases.
+    Under Create New Database, type the name of the database in the Database Name text box.
+    Click Create Database.
+    When the database is created, click Go Back.
+    Under Add User to Database, select the user that you want to add in the User list box.
+    In the Database list box, select the new database.
+    Click Submit.
+
+Import a PostgreSQL database
+
+After you have created a new database in cPanel, you can import the database's contents by using the psql command line program, or you can phpPgAdmin.
+You should import all PostgreSQL data as the primary PostgreSQL user (that is, by using your domain username). If you import PostgreSQL data as a regular user, you will be unable to see or manipulate the data properly using phpPgAdmin. After you have imported the data as the primary PostgreSQL user, you can grant a regular user access to the data. Then you do not have to use the primary domain username and password in scripts that access the database.
+Method #1: Use the psql program
+
+To import a PostgreSQL database using the psql program, follow these steps:
+
+    Transfer the dbexport.pgsql file to your A2 Hosting account using SCP, SFTP, or FTP.
+    Log in to your A2 Hosting SSH account.
+    Type the following command, and then press Enter. Replace USERNAME with your username and DBNAME with the name of the database that you want to import the data into:
+
+    psql -U USERNAME DBNAME < dbexport.pgsql
+
+    The DBNAME database should now contain the data that is in the dbexport.pgsql file.
+
+Method #2: Use phpPgAdmin
+
+To import a PostgreSQL database using phpPgAdmin, follow these steps:
+
+    Log in to cPanel.
+    In the Databases section of the cPanel home screen, click phpPgAdmin.
+    In the left pane of the phpPgAdmin window, expand Servers, expand PostgreSQL, and then click the name of the database that you want to import the data into.
+    On the top menu bar, click SQL.
+    The SQL link is located between the Schemas and Find links.
+    Click Browse.
+    In the file dialog, select where the import file is located, and then click Open.
+    Click Execute. phpPgAdmin imports the data from the file into the database.

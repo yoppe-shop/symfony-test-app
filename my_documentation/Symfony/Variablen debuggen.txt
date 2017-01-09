@@ -1,0 +1,22 @@
+Variablen wie mit var_dump ausgeben:
+
+\Doctrine\Common\Util\Debug::dump($articles)
+
+Oder mit Kurzform:
+
+use \Doctrine\Common\Util\Debug;
+Debug::dump($articles);
+
+<pre></pre> für eine übersichtliche Ausgabe muss man selbst eingeben.
+
+ArrayCollections werden wie Arrays ausgegeben!!!
+
+Es werden standardmäßig 2 Tiefen ausgegeben. Wir können die Tiefe als Parameter ändern, 
+z.B. mit 3 Tiefen:
+
+\Doctrine\Common\Util\Debug::dump($articles, 3);
+
+Standardmäßig werden HTML-Tags mit strip_tags() entfernt. Wenn das nicht gewünscht ist, als dritten 
+Parameter false angeben:
+
+\Doctrine\Common\Util\Debug::dump($articles, 3, false);

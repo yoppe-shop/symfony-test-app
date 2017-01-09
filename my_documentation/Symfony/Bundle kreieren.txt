@@ -1,0 +1,21 @@
+Bundle kreieren:
+
+Eingeben:
+
+php app/console generate:bundle
+
+Im interaktiven Menü werden dann alle Paramenter abgefragt:
+
+Im Namespace gibt man MeinnameBundle an.
+
+Einen Bundlenamen braucht man bei der nächsten Frage nicht, einfach "Enter" drücken.
+
+Als Verzeichnis das src-Verzeichnis stehen lassen.
+
+Als Format habe ich "Annotation" ausgewählt.
+
+Das Bundle ist dann mit URL/BundleName/Controller/Methode aufrufbar,
+z.B. ruft man im neuen CSV-Bundle die Methode "test" im Controller Csv folgendermaßen auf:
+
+http://www.yoppe-shop.de/administration/web/app_dev.php/csv/csv/test
+

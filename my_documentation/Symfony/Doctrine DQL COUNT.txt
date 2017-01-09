@@ -1,0 +1,39 @@
+Doctrine: COUNT:
+
+Entweder müssen assoziierte Objekte mit ihrem Attribut im Grundobjekt der FROM-Klausel 
+angegeben werden:
+
+    public function getNumAttr($em, $id)
+    {
+        $result = $em
+            ->createQuery("
+               SELECT COUNT(pa.id)
+               FROM AppBundle:Product p 
+               INNER JOIN p.productAttributes pa
+               WHERE p.id = :id
+            ")
+            ->setParameter('id', $id)
+            ->getSingleScalarResult();
+
+            return $result;
+    }
+
+    Oder, wenn man die assoziierte Klasse als eigene Entity angibt, mit WITH:
+
+    public function getNumAttr($em, $id)
+    {
+        $result = $em
+            ->createQuery("
+               SELECT COUNT(pa.id)
+               FROM AppBundle:Product p 
+               INNER JOIN AppBundle:ProductAttribute pa WITH pa.product_id=p.product_id
+               WHERE p.id = :id
+            ")
+            ->setParameter('id', $id)
+            ->getSingleScalarResult();
+
+            return $result;
+    }
+
+    Nimmt man kein WITH rein, werden 4 pa.id gezählt, da nicht die Verknüpfung aus der 
+    product-Klasse vorhanden ist!

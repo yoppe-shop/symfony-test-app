@@ -1,0 +1,23 @@
+SERVICES AN SERVICES UEBERGEBEN:
+
+Z.B. den Service "kernel" ( mit $this->get('kernel') aus normalem Controller aufrufbar) zu übergeben:
+
+services:
+    products:
+        class: ServiceBundle\Controller\ProductController
+    csv:
+        class: ServiceBundle\Controller\CsvController
+        arguments: [@kernel]
+		
+Im Service-Controller CsvController ist $kernel jetzt im Constructor verfügbar:
+
+	public function __construct($kernel)
+	{
+		$this->kernel = $kernel;
+	}
+
+In den Methoden kann jetzt über $this->kernel als Service verfügt werden.
+
+Mehrere Argumente einfügen:
+
+        arguments: [@kernel, @logger]

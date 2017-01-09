@@ -1,0 +1,3 @@
+Root-Dir, das auf "App" verweist:
+
+$this->get('kernel')->getRootDir()

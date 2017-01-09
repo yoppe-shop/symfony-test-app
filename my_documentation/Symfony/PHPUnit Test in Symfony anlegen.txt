@@ -1,0 +1,71 @@
+PHPUnit-Tests für Controller:
+
+1. Im Verzeichnis tests/AppBundle/Controller als SPIEGELBILD zum Pfad des Quellcontrollers 
+die Testdatei mit dem Namen des Controllers + dem Schlüsselwort 'Test' mit .php am Ende 
+anlegen.
+
+2. Der Namespace entspricht dem Namespace des Controllers mit 'Test' davor.
+
+3. Im 'use' den Namensraum des Controllers + den Controllername angeben.
+
+4. Als Test-Klassenname den Controller-Klassenname + 'Test' wählen.
+
+5. Die Testfunktionen müssen exakt den Methodennamen + 'Test' haben. Wenn es sich 
+um eine Action handelt, den Zusatz 'Action' mitverwenden!!!
+
+6. Ist das Ergebnis, wie hier im Beispiel, ein Response-Objekt, enthält das Response-Objekt 
+auch die Header, wie z.B. dem HTTP-Status, und man kann den Rückgabewert des reinen Contents 
+mit $result->getContent() ermitteln.
+
+7. Die Methode "protected function setUp()" wird, falls vorhanden, vor den Tests aufgerufen und kann 
+eine Testumgebung herstellen.
+
+AUFRUF:
+
+ Alle Tests der Applikation:
+ phpunit
+
+ Alle Tests im Util-Ordner:
+ phpunit tests/AppBundle/Util
+
+ Alle Tests in einer Klasse:
+ phpunit tests/AppBundle/Util/CalculatorTest.php
+
+ Alle Tests im ganzen Bundle:
+ phpunit tests/AppBundle/
+
+Beispiel:
+
+<?php
+
+//C:\xampp\htdocs\symfony\tests\AppBundle\Controller\BeispielControllerTest.php
+
+namespace Tests\AppBundle\Controller;
+
+use AppBundle\Controller\BeispielController;
+
+class BeispielControllerTest extends \PHPUnit_Framework_TestCase
+{
+    public function testGetValue()
+    {
+        $beispiel = new BeispielController();
+        $result = $beispiel->getValueAction();
+
+        $this->assertEquals(1000, $result->getContent());
+        $this->assertEquals(
+            ['first', 'second'],
+            func_get_args()
+        );
+        $this->assertNotEmpty($result);
+        $this->assertEmpty($result);
+    }
+
+    public function testGetNumber()
+    {
+        $beispiel = new BeispielController();
+        $result = $beispiel->getNumber();
+
+        $this->assertEquals(2000, $result);
+        $this->assertTrue($result);
+    }
+}

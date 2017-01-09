@@ -1,0 +1,44 @@
+SERVICES (Components oder Plugins in CakePHP)
+
+You can define your controller as service, then get it in another controller.
+
+In your services.yml define needed controller as a service:
+
+services:
+    your_service_name:
+        class: YourCompany\YourBundle\Controller\YourController
+
+Then in any controller you'll be able to get this service via container:
+
+$yourController = $this->get('your_service_name');
+
+Methoden aufrufen:
+
+$yourcontroller->function(...);
+
+Im Service-Controller kein Action an die Methoden dran hängen und einfache Returns statt
+Response-Objekte zurückgeben.
+
+SERVICES AN SERVICES UEBERGEBEN:
+
+Z.B. den Service "kernel" ( mit $this->get('kernel') aus normalem Controller aufrufbar) zu übergeben:
+
+services:
+    products:
+        class: ServiceBundle\Controller\ProductController
+    csv:
+        class: ServiceBundle\Controller\CsvController
+        arguments: [@kernel]
+		
+Im Service-Controller CsvController ist $kernel jetzt im Constructor verfügbar:
+
+	public function __construct($kernel)
+	{
+		$this->kernel = $kernel;
+	}
+
+In den Methoden kann jetzt über $this->kernel als Service verfügt werden.
+
+Mehrere Argumente einfügen:
+
+        arguments: [@kernel, @logger]

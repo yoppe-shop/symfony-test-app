@@ -10,6 +10,7 @@ use AppBundle\Entity\Article;
 use AppBundle\Entity\Tag;
 use AppBundle\Entity\User;
 use AppBundle\Entity\Product;
+use AppBundle\Entity\ProductAttribute;
 use AppBundle\Repository\TagRepository;
 use \Doctrine\Common\Util\Debug;
 use Doctrine\ORM\Query\ResultSetMapping;
@@ -40,7 +41,7 @@ class TestController extends Controller
         $em = $this->getDoctrine()->getManager();
 
         $sql = "
-            SELECT p.id as product_id, model, name, pa.product_option_id 
+            SELECT p.id as pid, model, name, pa.product_option_id 
             FROM products p
             INNER JOIN product_attributes pa ON pa.product_id = p.id
             WHERE p.id > '1'
@@ -51,16 +52,18 @@ class TestController extends Controller
         //$rsm->addJoinedEntityResult('AppBundle:ProductAttribute', 'pa', 'p', 'productAttributes');
 
         $rsm = new ResultSetMappingBuilder($em);
-        $rsm->addRootEntityFromClassMetadata('AppBundle:Product', 'p', ['id' => 'product_id']);
-        $rsm->addJoinedEntityFromClassMetadata('AppBundle:ProductAttribute', 'pa', 'p', 'productAttribute');
-
+        $rsm->addRootEntityFromClassMetadata('AppBundle:Product', 'p', ['id' => 'pid']);
+        $rsm->addJoinedEntityFromClassMetadata('AppBundle:ProductAttribute', 'pa', 'p', 'productAttributes');
         $query = $em->createNativeQuery($sql, $rsm);
+
         $products = $query->getResult();
         foreach ($products as $product) {
             echo "Produkt: " . $product->getModel() . " " . $product->getName() . "<br />";
+            $productAttributes = $product->getProductAttributes();
+            $debug->pr($productAttributes);
         }
 
-        $debug->pr($products);
+        $debug->pr($products, 5);
 
         return new Response (
             'Das ist die Testausgabe!'
@@ -92,5 +95,92 @@ class TestController extends Controller
         return new Response (
             ''
         );
+    }
+
+    /**
+    * @Route("/test/unit_tests")
+    */
+    public function unitTests()
+    {
+        $debug = $this->get('debug');
+        $em = $this->getDoctrine()->getManager();
+
+        $result = $this->getNumAttr($em, 2);
+        $debug->pr($result, 5);
+        return new Response (
+            ''
+        );
+    }
+
+    /**
+    * @Route("/test/test_pdo")
+    */
+    public function testPdo()
+    {
+        $debug = $this->get('debug');
+        $em = $this->getDoctrine()->getManager();
+
+        $result = $this->pdoQuery($em);
+        $debug->pr($result, 5);
+        return new Response (
+            ''
+        );
+    }
+
+    /**
+    * @Route("/test/nto1_test")
+    */
+    public function nto1Test()
+    {
+        $debug = $this->get('debug');
+        $em = $this->getDoctrine()->getManager();
+
+        $result = $this->getNumProd($em);
+        $debug->pr($result, 4);
+        return new Response (
+            ''
+        );
+    }
+
+
+    public function getNumAttr($em, $id)
+    {
+        $debug = $this->get('debug');
+        $result = $em
+            ->createQuery("
+               SELECT COUNT(pa.id)
+               FROM AppBundle:Product p 
+               INNER JOIN p.productAttributes pa
+               WHERE p.id = :id
+            ")
+            ->setParameter('id', $id)
+            ->getSingleScalarResult();
+        return $result;
+    }
+
+    public function getNumProd($em)
+    {
+        $debug = $this->get('debug');
+        $result = $em
+            ->createQuery("
+               SELECT pa, p
+               FROM AppBundle:ProductAttribute pa 
+               INNER JOIN pa.product p
+            ")
+            ->getResult();    
+        return $result;
+    }
+
+    public function pdoQuery($em)
+    {
+        $conn = $em->getConnection();
+        $statement = $conn->prepare("
+	        SELECT *
+            FROM products p 
+            LEFT JOIN product_attributes pa ON pa.product_id = p.id;
+        ");
+        $statement->execute();
+        $result = $statement->fetchAll();
+        return $result;
     }
 }

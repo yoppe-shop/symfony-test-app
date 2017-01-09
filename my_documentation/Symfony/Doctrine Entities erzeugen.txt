@@ -1,0 +1,71 @@
+DOCTRINE - Entities herstellen:
+
+1. Oder Doctrine soll die kompletten Entities herstellen:
+
+Dazu in der Datei app/config/config.yml im Abschnitt doctrine: / dbal: eine Whitelist der 
+DB-Tabellen eintragen, die Doctrine fehlerfrei umwandeln kann (BITTE keine Tabs verwenden!!!):
+
+doctrine:
+    dbal:
+        driver:   pdo_mysql
+		... Zeilen dazwischen ...
+        schema_filter: ~^(products|products_attributes|products_options|products_options_values)$~
+
+Oder andersrum nur die Tabellen angeben, die ignoriert werden sollen:
+
+	schema_filter: ~^(?!(campaigns_ip|counter|coupons_description))~
+	
+Nun die Erzeugung von XML-Dateien in src/AppBundle/Ressources/config/doctrine/ durchführen:
+
+php app/console doctrine:mapping:import --force AppBundle xml
+
+Es wurden XML-Dateien erzeugt. Nun durch folgende zwei Zeilen die Entities herstellen:
+
+$ php app/console doctrine:mapping:convert annotation ./src
+
+Die Entities wurden erzeugt. Nun zum Schluss noch die Getter/Setter erzeugen lassen:
+
+$ php app/console doctrine:generate:entities AppBundle
+
+2. Oder es sind schon die Entities da und es sollen von Doctrine nur die nötigen Getter/Setter hergestellt werden:
+
+Es muss in src/AppBundle/Entity die notwendige Entity angelegt werden.
+ 
+In der Entity müssen die Felder und die notwendigen Annotations angegeben werden. Wichtig ist, dass über der Id @ORM\Id auftaucht und 
+bei den Werten die Typen angegeben werden. Z.B.:
+
+<?php
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="products")
+ */
+class Product
+{
+    /**
+    * @ORM\Column(type="integer")
+    * @ORM\Id
+    * @ORM\GeneratedValue(strategy="AUTO")
+	*/
+	protected $products_id;
+	/**
+	* @ORM\Column(type="string", length=255)
+	*/
+	protected $products_ean;
+	/**
+	* @ORM\Column(type="integer", length=255)
+	*/
+	protected $number;
+usw.
+}
+
+
+In der Konsole/Putty eingeben:
+
+php app/console doctrine:generate:entities AppBundle
+
+Es werden nun automatisch die Getter und Setter in die Entity integriert.
+

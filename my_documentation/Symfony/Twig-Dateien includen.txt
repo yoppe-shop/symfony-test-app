@@ -1,0 +1,39 @@
+Twig - Dateien horizontal includen:
+
+Der einfache Weg über Include: Hier wird kein Block geerbt und überschrieben, sondern die Datei einfach 
+eingebunden, ähnlich wie in PHP, nur mit dem Unterschied, dass der Include-Pfad nicht im aktuellen, 
+sondern immer im View-Root-Verzeichnis beginnt:
+
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}<link rel="stylesheet" href="special.css">
+{% endblock %}
+{% block title %}Amazon-Test Startseite{% endblock %}
+{% block body %}
+{{ include("main_nav.html.twig") }}
+<div>Hallo liebe User!</div>
+{% endblock %}
+
+Über "use" und eine horizontale Quasi-Vererbung:
+
+Im Beispiel wird die Datei main_nav.html.twig für das Hauptmenü eingebunden und wie "parent" aufgerufen:
+Siehe: http://twig.sensiolabs.org/doc/tags/use.html
+Die ganze Layout-Datei:
+
+{% extends 'base.html.twig' %}
+{% use "main_nav.html.twig" %}
+
+{% block body %}
+{% block main_nav %}
+{{ parent() }}
+{% endblock %}
+<div>Hallo liebe User!</div>
+{% endblock %}
+
+{% block stylesheets %}
+<link rel='stylesheet' id='css'  href='' type='text/css' media='all' />
+{% endblock %}
+
+Man kann zur Vermeidung von Namenskollisionen auch den Blocknamen umändern:
+
+{% use "main_nav.html.twig" with main_nav as base_main_nav, title as base_title %}

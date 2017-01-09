@@ -1,0 +1,14 @@
+ Schema update:
+ 
+ Sollte nur in Entwicklungsumgebung genutzt werden, da evt. Daten 
+ verloren gehen könnten. Das Kommando vergleicht, ob die DB den Entity-
+ Klassen entspricht und stellt die Datenbank durch SQL entsprechend her:
+ 
+ php bin/console doctrine:schema:update --force
+
+
+
+Über MIGRATIONS können Up- und Downgrades auch als Klassen angelegt 
+werden. Dies ist eine Erweiterung für Doctrine im DoctrineMigrationsBundle.
+
+https://symfony.com/doc/current/bundles/DoctrineMigrationsBundle/index.html
