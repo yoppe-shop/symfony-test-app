@@ -1,0 +1,76 @@
+Sessions werden gestartet, sobald Session-Variablen vorhanden sind oder welche 
+gelesen oder gesetzt werden.
+
+Code zum Verwenden von Sessions in PHP:
+
+       $session = new Session();
+
+        echo "Testvar: " . $session->get('testVar');
+
+        $session->set('testVar', 'TestValue');
+        // Session-Variable löschen: remove()
+        // Session-Variablen löschen: $session->clear();
+
+Flash-Nachricht anhängen:
+
+$session->getFlashBag()->add('notice', 'Das ist eine Warnung!');
+
+Vermeiden, dass die Session durch Lesen im Template nur gestartet wird, wenn 
+Session-Variablen vorhanden sind und Flash-Nachrichten auslesen:
+
+    {% if app.request.hasPreviousSession %}
+        {% for flashMessage in app.session.flashBag.get('notice') %}
+        <div class="flash-notice">
+            {{ flashMessage }}
+        </div>
+        {% endfor %}
+    {% endif %}
+
+Session-Methoden:
+
+start()
+    Starts the session - do not use session_start().
+migrate()
+    Regenerates the session ID - do not use session_regenerate_id(). This method can optionally change the lifetime of the new cookie that will be emitted by calling this method.
+invalidate()
+    Clears all session data and regenerates session ID. Do not use session_destroy().
+getId()
+    Gets the session ID. Do not use session_id().
+setId()
+    Sets the session ID. Do not use session_id().
+getName()
+    Gets the session name. Do not use session_name().
+setName()
+    Sets the session name. Do not use session_name().
+
+Session Attributes¶
+
+set()
+    Sets an attribute by key.
+get()
+    Gets an attribute by key.
+all()
+    Gets all attributes as an array of key => value.
+has()
+    Returns true if the attribute exists.
+replace()
+    Sets multiple attributes at once: takes a keyed array and sets each key => value pair.
+remove()
+    Deletes an attribute by key.
+clear()
+    Clear all attributes.
+
+The attributes are stored internally in a "Bag", a PHP object that acts like an array. A few methods exist for "Bag" management:
+
+registerBag()
+    Registers a SessionBagInterface.
+getBag()
+    Gets a SessionBagInterface by bag name.
+getFlashBag()
+    Gets the FlashBagInterface. This is just a shortcut for convenience.
+
+Session Metadata¶
+
+getMetadataBag()
+    Gets the MetadataBag which contains information about the session.
+

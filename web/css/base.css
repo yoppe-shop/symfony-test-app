@@ -4,6 +4,15 @@
     margin: 0;
 }
 
+.clearfix:after {
+    content: ".";
+    display: block;
+    height: 0;
+    line-height: 0;
+    clear: both;
+    visibility: hidden;
+}
+
 html {
     font-size: 100%;
 }
@@ -100,4 +109,8 @@ header {
     text-decoration: none;
     font-weight: normal;
     color: black;
+}
+
+.flash-notice {
+    color: #aa0000;
 }

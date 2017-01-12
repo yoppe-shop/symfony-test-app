@@ -13,6 +13,14 @@
         <header>
             <h1>Meine Internetseite</h1>
         </header>
+    {{ include("main_nav.html.twig") }}
+    {% if app.request.hasPreviousSession %}
+        {% for flashMessage in app.session.flashBag.get('notice') %}
+        <div class="flash-notice">
+            {{ flashMessage }}
+        </div>
+        {% endfor %}
+    {% endif %}
         {% block body %}{% endblock %}
         {% block javascripts %}{% endblock %}
     </body>

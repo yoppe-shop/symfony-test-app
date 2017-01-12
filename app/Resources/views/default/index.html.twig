@@ -6,13 +6,14 @@
 {% endblock %}
 {% block title %}Amazon-Test Startseite{% endblock %}
 {% block body %}
-{{ include("main_nav.html.twig") }}
 <div>Hallo liebe User!</div>
+{% if names is defined and product is defined %}
 <div id="test1">Erster User: {{ names.0 }}</div>
 <div>Namen durchlaufen:</div>
-{% for name in names %}
+{% for name in names%}
 <div id="test2">{{ name }}</div>
 {% endfor %}
 <div>Produktname: {{ product.getName() }}</div>
 <div>Artikelnummer: {{ product.getModel() }}</div>
+{% endif %}
 {% endblock %}

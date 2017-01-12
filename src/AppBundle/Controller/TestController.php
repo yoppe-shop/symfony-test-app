@@ -15,6 +15,7 @@ use AppBundle\Repository\TagRepository;
 use \Doctrine\Common\Util\Debug;
 use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\ORM\Query\ResultSetMappingBuilder;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 // Klasse TestController (Kommentar für GIT)
 
@@ -182,5 +183,24 @@ class TestController extends Controller
         $statement->execute();
         $result = $statement->fetchAll();
         return $result;
+    }
+
+    /**
+    * @Route("/test/test_session")
+    */
+    public function testSessionAction()
+    {
+        $session = new Session();
+        $session->getFlashBag()->add('notice', 'Das ist eine Warnung!');
+        echo "Testvar: " . $session->get('testVar') . "<br>";
+        echo "Testvar: " . $session->get('testVar2');
+        $session->set('testVar', 'TestValue');
+        $session->set('testVar2', 'TestValue2');
+
+        // $session->remove('testVar');
+        // $session->clear();
+        return $this->render('default/index.html.twig', [
+            'base_dir' => realpath($this->getParameter('kernel.root_dir').'/..').DIRECTORY_SEPARATOR,
+        ]);
     }
 }
