@@ -1,0 +1,21 @@
+form {
+  margin: 12px 0;
+}
+form div {
+  margin-bottom: 12px;
+}
+form div label:after {
+  content: ": ";
+}
+form div input {
+  border: 1px solid #808080;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+}
+form div button {
+  border: 1px solid #808080;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+}

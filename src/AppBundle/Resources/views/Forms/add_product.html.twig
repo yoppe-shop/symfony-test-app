@@ -1,0 +1,33 @@
+{% extends "::base.html.twig" %}
+
+{% block title %}Produkt hinzufuegen{% endblock %}
+{% block stylesheets %}
+<link rel="stylesheet" href="{{ asset('css/forms.css') }}" />
+{% endblock %}
+{% block body %}
+<h1>Produkt hinzufügen:</h1>
+{#
+{{ form_start(form) }}
+{{ form_widget(form) }}
+{{ form_end(form) }}
+#}
+
+{{ form_start(form) }}
+{{ form_errors(form) }}
+<div>
+{{ form_label(form.model, 'Artikelnummer') }}
+{{ form_errors(form.model) }}
+{{ form_widget(form.model) }}
+</div>
+<div>
+{{ form_label(form.name, 'Artikelname') }}
+{{ form_errors(form.name) }}
+{{ form_widget(form.name, {
+    'attr': {
+        'value': 'Artikelname'
+}})
+}}
+</div>
+{{ form_end(form) }}
+
+{% endblock %}

@@ -112,5 +112,10 @@ header {
 }
 
 .flash-notice {
+    font-size: 0.9rem;
     color: #aa0000;
+    border: 1px solid #aa0000;
+    background-color: #ffdddd;
+    padding: 12px;
+    margin: 12px 0;
 }
