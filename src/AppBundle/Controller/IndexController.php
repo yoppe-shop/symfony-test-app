@@ -20,6 +20,9 @@ class IndexController extends Controller
      */
     public function indexAction(Request $request)
     {
+        /**
+        * This is the root method, invoked as html root (Git-Test)
+        */
         $product = new Product();
         $product->setName("XProdukt");
         $product->setModel("70000");
