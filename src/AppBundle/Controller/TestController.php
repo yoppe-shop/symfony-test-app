@@ -64,6 +64,8 @@ class TestController extends Controller
             $debug->pr($productAttributes);
         }
 
+        $debug->pr($result, 5);
+
         return new Response (
             'Das ist die Testausgabe!'
         );
