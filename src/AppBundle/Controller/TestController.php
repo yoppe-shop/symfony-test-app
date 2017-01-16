@@ -67,7 +67,7 @@ class TestController extends Controller
         $debug->pr($products, 5);
 
         return new Response (
-            'Das ist die Testausgabe!'
+            'Controllerausgabe'
         );
     }
 
