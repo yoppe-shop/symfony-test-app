@@ -1,0 +1,117 @@
+Git Deployment über Hook im Bare Repository OHNE Deployment Script:
+============================================
+
+Um die Anleitung optimal nachvollziehen zu können benötigt ihr folgendes:
+
+    1x Rechner mit Git + Kommandozeile
+    2x Git Non-Bare Repositories
+    1x Git Bare Repository
+    1x SSH Client & Zugang zum Webspace
+    1x FTP Client
+    1x Irgend ein Webspace mit Git und SSH
+
+Ziel
+
+Wenn wir mit dieser Step-by-Step Anleitung fertig sind, können wir unsere Versionsstände aus unserem lokalen Repository direkt in das Bare Repository auf das Produktionssystem pushen. Da es nicht vorgesehen ist, dass man Versionsstände in ein Non-Bare Repository pushed, muss dieser Umweg eingeschlagen werden. Sobald die Daten im Bare Repository angekommen sind, wird mittels des Git Post-Receive-Hooks das Non-Bare Repository auf dem Produktionssystem angewiesen sich die neuen Stände zu pullen und zu mergen. So ist es uns möglich Veränderungen mit nur einer Zeile in der Kommandozeile ins Produktions System einzuspielen. Dies funktioniert nur fehlerfrei, sofern keine Konflikte beim mergen auftreten. Sofern ihr nicht ständig am Live System rumfummelt, sollte das also kein Problem sein.
+Schritt 1: Lokales Non-Bare Repository aufsetzen
+
+Das erste Non-Bare Repository ist unser lokales Arbeitsverzeichnis, für das Beispiel nennen wir es „git-tutorial“. Da es nicht möglich ist leer-commits zu tätigen, muss mindestens eine Datei hinzugefügt und committed werden. Für das Beispiel nennen wir die Datei „Rezept.txt“ und fügen dort folgenden Inhalt ein:
+
+    250 g    Mehl
+    250 ml   Milch
+    2        Ei(er), getrennt
+    2 Pck.   Vanillezucker
+    2 EL     Zucker
+
+Anschließend dann die folgenden Befehle ausführen:
+
+    git init
+    git add Rezept.txt
+    git commit –m "Rezept - Initial Commit"
+
+Ihr solltet nun einen Ordner mit dem Namen „git-tutorial“ erstellt haben. In diesem Ordner befindet sich nach dem Ausführen der Befehle ein weiterer Ordner namens „.git“ und die angelegte „Rezept.txt“ Datei.
+Schritt 2:  Remote Bare Repository aufsetzen
+
+Nun müssen wir uns per SSH auf dem Remote Server einloggen und dort ein Verzeichnis für unser Bare Repository anlegen. Für das Beispiel nennen wir  es entsprechend git-turorial.git (bitte den Punkt vor git am Ende nicht vergessen!). Anschließend wechseln wir in das frisch erstellte Verzeichnis. Dort müsst ihr nun das Bare Repository anlegen.
+
+    mkdir git-tutorial.git
+    cd git-tutorial.git
+    git init --bare
+
+Schritt 3: Remote Non-Bare Repository einrichten
+
+Für das dritte Repository wird ein weiteres Verzeichnis auf dem Remote Server benötigt welches wir für das Beispiel „git-tutorial“ nennen. Um es einfach zu halten, legen wir es in das gleiche Verzeichnis wie das Remote Bare Repository.
+
+    mkdir git-tutorial
+    cd git-tutorial
+    git init
+
+Nachdem ihr Schritt 2 und 3 auf eurem Remote Server gemacht habt, sollten sich nun die Repositories git-tutorial.git und git-tutorial im gleichen Verzeichnis befinden.
+
+Schritt 4: Remotes zu den Repositorys hinzufügen und initiales pushen
+
+Damit sich die Repositories untereinander kennen und wir nicht jedes Mal die kompletten Pfade zum Pullen und Pushen eingeben müssen, fügen wir nun die wichtigsten Remotes den beiden Non-Bare Repositorys hinzu.
+
+    Lokales Non-Bare Repository (git-tutorial)
+    Remote Non-Bare Repository (git-tutorial)
+
+Da das Bare Repository nur als Zwischenlager fungiert, muss es keine anderen Repositories kennen.
+Lokales Non-Bare Repository
+
+Bitte füllt die Platzhalter in der folgenden Zeile eigenständig aus ;)
+
+    git remote add origin ssh://<username>@<remoteURL oder IP>/<absoluterPfad> /git-tutorial.git
+    git config branch.master.remote origin
+    git config branch.master.merge refs/heads/master
+    git push origin master
+    <SSH Passwort eingeben>
+
+Das Lokale Non-Bare Repository kennt nun das Bare Repository auf dem Remote Server unter dem Alias origin und hat auch den SSH Pfad inklusive Nutzernamen gespeichert. Somit können wir nun mit „git push origin master“ unseren derzeit einzigen Branch „Master“ in das Remote Bare Repository pushen.
+Remote Non-Bare Repository
+
+    git remote add origin ../git-tutorial.git
+    git config branch.master.remote origin
+    git config branch.master.merge refs/heads/master
+    git pull origin master
+
+Das Remote Non-Bare Repository kennt nun ebenfalls das Bare Repository auf dem Remote Server und somit können wir uns nun die Daten mittels „git pull origin master“ abholen. Diese werden anschließend in den Master Branch gemerged.
+Wir haben nun eine Verkettung geschaffen und haben ein Bare Repository als Schnittstelle zwischen den beiden Non-Bare Repositories geschaltet.
+
+Wenn wir nun alles richtig gemacht haben, sollte sich nun die Rezept.txt auf dem Remote Server befinden *cheers*.
+Schritt 5: Post-Receive Hook im Bare Repository einfügen
+
+Natürlich haben wir gar keine Lust uns jedes Mal per SSH auf dem Remote Server einzuloggen, dort in das Non-Bare Repository zu wechseln und den Pull der Daten von Hand auszuführen. Müssen wir auch nicht! Nachdem wir die Daten in das Bare Repository gepushed haben, können wir nun den post-receive Hook nutzen, um den Pull vom Remote Non-Bare Repository ausführen zu lassen.
+
+Nun müsst ihr mit eurem FTP Programm im Bare Repository auf eurem Remote Server in das Verzeichnis „hooks“ wechseln. Dort befindet sich eine Datei namens „post-receive.sample“. Diese müsst ihr in „post-receive“ umbenennen und folgenden Inhalt dort hinterlegen:
+
+Wichtig! Bitte nicht vergessen den Pfad zu eurem Remote Non-Bare Repository anzupassen und den CHMOD der Datei auf 755 zu setzen.
+
+    cd ~/<pfad>/git-tutorial/ || exit
+    unset GIT_DIR
+    git pull origin master
+
+Nachdem ihr das gemacht habt, müsst ihr den Hook einmal testen. Dazu begebt euch wieder in euer lokales Non-Bare Repository und ändert dort das Rezept auf z.B.:
+
+    500 g     Mehl
+    500 ml    Milch
+    4         Ei(er), getrennt
+    4 Pck.    Vanillezucker
+    4 EL      Zucker
+
+Anschließend die Änderungen stagen, committen und pushen ;)
+
+    git add Rezept.txt
+    git commit –m "Anpassungen am Rezept"
+    git push origin master
+
+Herzlichen Glückwunsch
+
+Wenn ihr alles richtig gemacht habt, sollte sich die aktuelle Version eures Rezeptes nun in eurem Remote Repository befinden.
+
+Dies ist meine erste Step-by-Step Anleitung. Solltet ihr Fragen haben oder nicht weiterkommen, nutzt doch bitte die folgenden Kontaktmöglichkeiten:
+
+E-Mail: info@bk2k.info
+Twitter: twitter.com/benjaminkott
+
+Sonnige Grüße
+Benjamin

@@ -3,6 +3,8 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
 * @ORM\Entity
@@ -20,6 +22,7 @@ class Product
 
     /**
     * @ORM\Column(type="string", length=255)
+    * @Assert\NotBlank(message = "product.model.not_blank"))
     */
     protected $model = '';
 
@@ -30,17 +33,18 @@ class Product
 
     /**
     * @ORM\Column(type="string", length=255)
+    * @Assert\NotBlank(message = "Das Feld darf nicht leer bleiben!")
     */
     protected $name = '';
 
     /**
-    * @ORM\OneToMany(targetEntity="ProductAttribute", mappedBy="product")
+    * @ORM\OneToMany(targetEntity="ProductAttribute", mappedBy="product", cascade="persist")
     */
     protected $productAttributes;
 
     public function __construct()
     {
-        $this->productAttributes = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->productAttributes = new ArrayCollection();
     }
 
     public function __toString()
@@ -75,12 +79,12 @@ class Product
 
     public function getCreated()
     {
-        return \DateTime($this->created);
+        return $this->created;
     }
 
-    public function setCreated($created)
+    public function setCreated(\DateTime $created = null)
     {
-        $this->created = new \DateTime($created);
+        $this->created = $created;
     }
 
     public function getProductAttributes()
@@ -100,7 +104,7 @@ class Product
 
     public function removeProductAttribute(ProductAttribute $productAttribute)
     {
-        $this->productAttributes->add($productAttribute);
+        $this->productAttributes->removeElement($productAttribute);
     }
 
     public function clearProductAttributes()

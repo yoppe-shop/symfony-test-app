@@ -34,13 +34,13 @@ class ProductAttribute
     protected $productOptionValueId = 0;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Product", inversedBy="productAttributes")
+     * @ORM\ManyToOne(targetEntity="Product", inversedBy="productAttributes", cascade="persist")
      */
     protected $product;
 
     public function __toString()
     {
-        return $this->name();
+        return (string) $this->id;
     }
 
     public function getId()
@@ -57,6 +57,7 @@ class ProductAttribute
     {
         $this->productId = $productId;
     }
+
     public function getProductOptionId()
     {
         return $this->productOptionId;
@@ -66,6 +67,7 @@ class ProductAttribute
     {
         $this->productOptionId = $productOptionId;
     }
+
     public function getProductOptionValueId()
     {
         return $this->productOptionValueId;

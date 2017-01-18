@@ -1,0 +1,4 @@
+Flash-Mitteilung in Session erzeugen:
+
+$session = new Session();
+$session->getFlashBag()->add('notice', 'ES LIEGEN POST-DATEN VOR!');

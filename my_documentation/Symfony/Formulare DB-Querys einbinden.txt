@@ -1,0 +1,20 @@
+Querys im Formular einbinden, um eine Auswahl zu erzeugen:
+
+public function buildForm(FormBuilder $builder, array $options)
+{
+    $builder->add('name');
+    $builder->add('university', 'entity', array(
+        // The class of the entity used as a combo box item
+        'class' => 'AcmeBundle:University',
+
+        // The property of the entity displaying the entity as text
+        'property' => 'name',
+
+        // The query builder used to populate the combo box, accepts
+        // a QueryBuilder object or a \Closure like below 
+        'query_builder' => function(EntityRepository $repository) {
+            // This will return a query builder selecting all universities
+            return $repository->createQueryBuilder('u');
+        }
+    ));
+}

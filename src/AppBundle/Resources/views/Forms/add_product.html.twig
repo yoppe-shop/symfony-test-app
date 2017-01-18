@@ -7,12 +7,13 @@
 {% block body %}
 <h1>Produkt hinzufügen:</h1>
 {#
+3-Zeilen-Code ohne Rendering-Flexibilitaet:
 {{ form_start(form) }}
 {{ form_widget(form) }}
 {{ form_end(form) }}
 #}
 
-{{ form_start(form) }}
+{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
 {{ form_errors(form) }}
 <div>
 {{ form_label(form.model, 'Artikelnummer') }}
@@ -24,10 +25,81 @@
 {{ form_errors(form.name) }}
 {{ form_widget(form.name, {
     'attr': {
-        'value': 'Artikelname'
 }})
 }}
 </div>
+<div>
+{{ form_label(form.created, 'Erzeugt am') }}
+{{ form_errors(form.created) }}
+{{ form_widget(form.created) }}
+</div>
+{% for productAttribute in form.productAttributes %}
+<div>
+{# form_row(productAttribute.productOptionId) #}
+{{ form_label(productAttribute.productOptionId, 'Produkt-Option-Id') }}
+{{ form_errors(productAttribute.productOptionId) }}
+{{ form_widget(productAttribute.productOptionId, {
+    'attr': {
+}})
+}}
+</div>
+<div>
+{# form_row(productAttribute.productOptionValueId) #}
+{{ form_label(productAttribute.productOptionValueId, 'Produkt-Option-Value-Id') }}
+{{ form_errors(productAttribute.productOptionValueId) }}
+{{ form_widget(productAttribute.productOptionValueId, {
+    'attr': {
+}})
+}}
+</div>
+{% endfor %}
+<ul class="productAttributes" data-prototype="{{ form_widget(form.productAttributes.vars.prototype)|e('html_attr') }}">
+</ul>
 {{ form_end(form) }}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script>
+var $collectionHolder;
 
+var $addProductAttributeLink = $('<a href="#" class="add_productAttribute_link">Produktattribut hinzufügen</a>');
+var $newLinkLi = $('<li></li>').append($addProductAttributeLink);
+
+jQuery(document).ready(function() {
+    // Get the ul that holds the collection of productAttributes
+    $collectionHolder = $('ul.productAttributes');
+
+    // add the "add a tag" anchor and li to the tags ul
+    $collectionHolder.append($newLinkLi);
+
+    // count the current form inputs we have (e.g. 2), use that as the new
+    // index when inserting a new item (e.g. 2)
+    $collectionHolder.data('index', $collectionHolder.find(':input').length);
+
+    $addProductAttributeLink.on('click', function(e) {
+        // prevent the link from creating a "#" on the URL
+        e.preventDefault();
+
+        // add a new tag form (see next code block)
+        addProductAttributeForm($collectionHolder, $newLinkLi);
+    });
+});
+
+function addProductAttributeForm($collectionHolder, $newLinkLi) {
+    // Get the data-prototype explained earlier
+    var prototype = $collectionHolder.data('prototype');
+
+    // get the new index
+    var index = $collectionHolder.data('index');
+
+    // Replace '__name__' in the prototype's HTML to
+    // instead be a number based on how many items we have
+    var newForm = prototype.replace(/__name__/g, index);
+
+    // increase the index with one for the next item
+    $collectionHolder.data('index', index + 1);
+
+    // Display the form in the page in an li, before the "Add a tag" link li
+    var $newFormLi = $('<li></li>').append(newForm);
+    $newLinkLi.before($newFormLi);
+}
+</script>
 {% endblock %}

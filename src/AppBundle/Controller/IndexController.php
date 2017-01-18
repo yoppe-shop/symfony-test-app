@@ -26,7 +26,7 @@ class IndexController extends Controller
         $product = new Product();
         $product->setName("XProdukt");
         $product->setModel("70000");
-        $product->setCreated('now');
+        $product->setCreated(new \DateTime('now'));
 
         return $this->render('default/index.html.twig', [
             'base_dir' => realpath($this->getParameter('kernel.root_dir').'/..').DIRECTORY_SEPARATOR,
