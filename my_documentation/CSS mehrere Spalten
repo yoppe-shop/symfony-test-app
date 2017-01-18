@@ -1,0 +1,18 @@
+Leider noch enginespezifisch, column-gap ist der Zwischenraum zwischen den Spalten:
+
+.zweispaltig {
+    width: 100%;
+    text-align: justify;
+    
+    -webkit-column-count: 2;
+    -webkit-column-gap: 1rem;
+    -webkit-column-rule: 1px solid #333;
+    
+    -moz-column-count: 2;
+    -moz-column-gap: 1rem;
+    -moz-column-rule: 1px solid #333;
+    
+    column-count: 2;
+    column-gap: 1rem;
+    column-rule: 1px solid #333;
+}

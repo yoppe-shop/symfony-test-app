@@ -1,0 +1,21 @@
+Hierarchien auslesen, auch Bäume (!), z.B. Mitarbeiterhierarchie:
+
+id = Mitarbeiter-Id
+name = Mitarbeitername
+superior_id = Mitarbeiter-Id des Vorgesetzten, beim obersten Chef 0
+
+SQL-Code (wichtig ist das RECURSIVE in der CTE):
+
+WITH RECURSIVE emp_cte (id, name, superior_id, rank)
+AS
+(
+    SELECT id, name, superior_id, 1 as rank
+    FROM employees e1 WHERE e1.superior_id=0
+    UNION ALL
+    SELECT e2.id, e2.name, e2.superior_id, c.rank + 1 AS rank
+    FROM employees e2, emp_cte c
+    WHERE e2.superior_id = c.id
+)
+SELECT *
+FROM emp_cte
+ORDER BY rank ASC;

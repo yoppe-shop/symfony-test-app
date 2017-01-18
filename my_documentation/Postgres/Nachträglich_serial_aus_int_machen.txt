@@ -1,0 +1,12 @@
+Nachträglich aus INTEGER ein SERIAL machen:
+
+Auto-Increment-Spalten in Postgres benutzen eine Sequenz
+create sequence a_i_seq;
+oder mit anderem Startwert als 1:
+CREATE SEQUENCE a_i_seq START 101;
+
+ALTER TABLE a ALTER COLUMN i SET DEFAULT nextval('a_i_seq');
+
+INCREMENT-Nummer mit Auswirkung auf die Tabelle ändern:
+
+SELECT setval('a_i_seq', 5);

@@ -1,0 +1,135 @@
+Unterschiede PostgreSQL zu MySQL:
+
+AUTO_INCREMENT definieren: id SERIAL PRIMARY KEY
+
+Timestamp mit automatischer Aktualisierung:
+Mit Trigger bei INSERT und UPDATE aktuelle Zeit in die Spalte einfügen.
+
+CHECK-Klausel:
+CREATE TABLE check_demo (
+    id INTEGER NOT NULL
+         CHECK (id > 0)
+)
+
+CREATE TABLE check_demo (
+    id INTEGER NOT NULL
+         CHECK (id > 0),
+
+    spalte1 VARCHAR,
+    spalte2 VARCHAR,
+         CHECK (spalte1 IS NOT NULL OR spalte2 IS NOT NULL),
+
+    passwort CHAR(32) NOT NULL 
+        CHECK (LENGTH(passwort) = 32) -- Prüfen, ob als MD5-Wert gespeichert, weil der IMMER 32 Zeichen lang ist
+)
+
+Default-Werte:
+CREATE TABLE check_demo (
+    webseite_anzeigen BOOLEAN NOT NULL
+                      DEFAULT FALSE,
+)
+
+
+NULL bei Sortierung:
+In MySQL stehen sie vorne, in Postgres hinten.
+In Postgres am Anfang möglich mit ORDER BY ... NULLS FIRST
+
+
+"NOT NULL": DEFAULT benutzen statt automatische Werte wie bei
+MySQL: MySQL erzeugt bei Spalten mit NOT NULL Defaultwerte wie 0, '' usw.
+In Postgres muss dafür ein DEFAULT-Wert angegeben werden.
+
+
+GROUP BY:
+
+Keine Zufallswerte wie bei MySQL, sondern es MUSS jede 
+auszugebende Spalte entweder im GROUP BY angegeben werden oder 
+als Aggregatwert im SELECT stehen, damit Postgres weiß, WELCHE 
+Werte ich haben will, z.B.:
+
+SELECT MAX(id) AS id, product_id, MIN(product_option_id), COUNT(DISTINCT product_option_id) AS Anzahl
+FROM product_attributes pa
+GROUP BY product_id;
+
+
+ZEROFILL ersetzen:
+SELECT lpad(spaltenname::text, gesamtlaenge, Ersetzen durch);
+
+SELECT lpad(id::text, 10, '0');
+SELECT MAX(id), product_id, product_option_id, product_option_value_id
+FROM product_attributes pa
+GROUP BY pa.product_id;
+
+
+Statt IFNULL: COALESCE benutzen:
+In MySQL IFNULL und COALESCE möglich. In Postgres stattdessen 
+immer COALESCE benutzen:
+
+SELECT COALESCE(spaltenname, 100) bedeutet:
+Wenn spalte mit spaltenname NULL ist, dann durch 100 ersetzen.
+
+Umformatierung von Spaltennamen mit AS:
+Wird in Postgres in Kleinbuchstaben umgewandelt, es sei denn, 
+man setzt den String in "".
+Z.B. SELECT 1 AS GROSS; wird ausgegeben als gross 1,
+SELECT 1 AS "GROSS"; wird ausgegeben als GROSS 1
+
+
+CONSTRAINTS und REFERENCES
+Referenzierende Spalten müssen exakt gleiche Definition haben (z.B. INTEGER NOT NULL) und beide einen 
+Index definiert haben.
+
+
+RAND()
+MySQL: ORDER BY RAND(), Postgres: ORDER BY RANDOM()
+
+
+LIKE und ILIKE:
+In MySQL ist LIKE case_insentitive, in Postgres case_sensitive, dafür gibt es ILIKE:
+LIKE: case_sensitive
+ILIKE oder LOWER(spaltenname) einsetzen: case_insensitive
+
+In MySQL muss der Zeichensatz case_insensitive sein, sodass Groß-/Kleinschreibung keine Bedeutung hat
+oder Folgendes für case_insensitive gemacht werden:
+
+SELECT  *
+FROM    trees
+WHERE   trees.`title` COLLATE UTF8_GENERAL_CI LIKE '%elm%'
+
+oder mit LOWER(trees.title) LIKE '%elm%' gearbeitet werden.
+
+
+BOOLEAN mit true/false statt SMALLINT(1) mit 1/0
+
+LOGISCH ODER mit OR statt "||"
+In MySQL ist "||" das Gleiche wie "OR", in Postgres werden mit "||" zwei Texte aneinander gekettet.
+
+Nur "AND" statt LOGISCH UND mit "&&" benutzen
+
+Bitweise Datentypen:
+BYTEA oder TEXT statt VARBINARY und BINARY mit anderer Befehlssyntax
+
+
+MySQL: INSERT IGNORE und REPLACE
+INSERT INTO ... ON CONFLICT DO UPDATE 
+oder eine Funktion, die nach UPDATE auf found prüft und sonst INSERTET
+oder sowas wie:
+DO
+$do$
+BEGIN
+IF EXISTS (SELECT 1 FROM orders) THEN
+   UPDATE orders SET ...;
+ELSE 
+   INSERT INTO orders VALUES (1,2,3);
+END IF;
+END
+$do$
+
+Kommantare mit "-- " und "/* ... */" möglich, KEIN "#" wie in MySQL
+
+"" und '':
+'...'  für Daten, "..." für Bezeichner (z.B. Spaltennamen mit AS)
+
+Kein \" und \', sondern "" und '' in Postgres
+
+

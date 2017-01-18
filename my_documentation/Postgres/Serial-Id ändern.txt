@@ -1,0 +1,7 @@
+Raussuchen, welche Sequenz für den Key verwendet wird.
+INCREMENT-Nummer ändern:
+
+SELECT setval('a_i_seq', 5);
+
+Anders als bei MySQL darf die Sequenz auf keine schon vergebenen Ids stoßen, dann gibt es eine 
+Fehlermeldung.
