@@ -1,0 +1,176 @@
+Funktion löschen:
+
+DROP FUNCTION [ IF EXISTS ] <name>(<argType1>, <argType2>, ...);
+
+CREATE / REPLACE FUNCTION <name>(<argType1>, <argType2>, ...)
+
+REPLACE kann nicht den Rückgabetyp der Funktion ändern, dafür DROP und CREATE nehmen.
+
+Argumente mit angeben, da Überladen möglich! Aber foo (VARCHAR) und foo (VARCHAR[10]) 
+ist das Gleiche.
+
+Argumente: IN, OUT, INOUT oder VARIADIC, Default ohne Angabe ist IN
+OUT und INOUT nicht zusammen mit RETURN TABLE - Notation
+
+
+CREATE FUNCTION Mittelwert(Integer, Integer) RETURNS NUMERIC
+AS '
+SELECT ($1 + $1)/2.0;
+' LANGUAGE sql;
+
+
+CREATE OR REPLACE FUNCTION Mittelwert(Integer, Integer) RETURNS NUMERIC
+AS '
+DECLARE
+    num1 Alias FOR $1;
+    num2 Alias FOR $2;
+    result Numeric;
+BEGIN
+    result := (num1 + num2)/2.0;
+    RETURN result;
+END;
+' LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION Produktname(products) 
+RETURNS VARCHAR AS '
+SELECT $1.model || '': '' || $1.name;
+' LANGUAGE sql;
+
+
+Tabellenzeile zurückgeben:
+
+CREATE OR REPLACE FUNCTION produkte(Integer)
+RETURNS products AS '
+    SELECT *
+    FROM products
+    WHERE id = $1;
+'LANGUAGE sql;
+
+Mehrere Zeilen zurückgeben:
+
+CREATE OR REPLACE FUNCTION produkte(Integer)
+RETURNS SETOF products AS '
+    SELECT *
+    FROM products
+    WHERE id > $1;
+'LANGUAGE sql;
+
+Ergebnisse bei Rückgabetyp Tabelle immer auslesen mit SELECT <Felder> FROM produkte(1);
+und nicht mit SELECT produkte(1);
+
+
+Daten setzen oder verändern:
+
+CREATE OR REPLACE FUNCTION set_price(Integer, Numeric)
+RETURNS SETOF products AS '
+    UPDATE products
+    SET price = $2
+    WHERE id = $1;
+    SELECT price
+    FROM products
+    WHERE id > $1;
+'LANGUAGE sql;
+
+plpgsql:
+
+CREATE OR REPLACE FUNCTION save_price(product_id INTEGER, new_price NUMERIC)
+RETURNS VOID AS $$
+BEGIN
+    IF new_price > 100
+    THEN BEGIN
+        EXECUTE 'UPDATE products SET price = 102.00 WHERE id = ' || product_id;
+    END;
+    ELSE BEGIN
+        EXECUTE 'UPDATE products SET price = 98.00 WHERE id = ' || product_id;
+    END;
+    END IF;
+END;
+$$ LANGUAGE plpgsql
+
+
+SELECT ArtikelNr, Titel, Erscheinungstermin, Artikelpreis,
+  CASE
+    WHEN EXTRACT(Year FROM Erscheinungstermin) < '2007'
+         THEN Artikelpreis - 0.10*Artikelpreis
+    WHEN EXTRACT(Year FROM Erscheinungstermin) > '2007'
+         THEN Artikelpreis - 0.05*Artikelpreis
+    ELSE Artikelpreis
+  END AS Neuer_Zustand
+FROM Artikel
+WHERE Erscheinungstermin IS NOT NULL
+ORDER BY ArtikelNr
+
+
+CREATE OR REPLACE FUNCTION reduce_price(pid Integer, debit Numeric)
+RETURNS VARCHAR AS '
+    UPDATE products
+    SET price = price - debit
+    WHERE id = pid;
+    SELECT ''Neuer Preis für '' || model || '': '' || price
+    FROM products
+    WHERE id = pid;
+'LANGUAGE sql;
+
+
+CREATE OR REPLACE FUNCTION delete_product()
+RETURNS VOID AS '
+DELETE FROM products
+WHERE id=1;
+' LANGUAGE sql;
+
+
+Einfache und komplexe CASE..THEN - Abfrage:
+
+CREATE or REPLACE FUNCTION Name_des_Wochentags(Date) RETURNS TEXT AS '
+DECLARE
+  Ergebnis TEXT;
+  Tagesindex INT4;
+BEGIN
+  Tagesindex := 0;
+  Tagesindex := DATE_PART(''DOW'', $1);
+  SELECT INTO Ergebnis
+  CASE Tagesindex
+    WHEN 0 THEN '' Sonntag''
+    WHEN 1 THEN '' Montag''
+    WHEN 2 THEN '' Dienstag''
+    WHEN 3 THEN '' Mittwoch''
+    WHEN 4 THEN '' Donnerstag''
+    WHEN 5 THEN '' Freitag''
+    WHEN 6 THEN '' Samstag''
+  END;
+  RETURN Ergebnis;
+END;
+' LANGUAGE 'plpgsql';
+
+
+CASE .. THEN in SELECT-Abfrage bezüglich der Werte (1) und bezüglich des Where (2):
+
+SELECT ArtikelNr, Titel, Erscheinungstermin, Artikelpreis,
+  CASE
+    WHEN EXTRACT(Year FROM Erscheinungstermin) < '2007'
+         THEN Artikelpreis - 0.10*Artikelpreis
+    WHEN EXTRACT(Year FROM Erscheinungstermin) > '2007'
+         THEN Artikelpreis - 0.05*Artikelpreis
+    ELSE Artikelpreis
+  END AS Neuer_Zustand
+FROM Artikel
+WHERE Erscheinungstermin IS NOT NULL
+ORDER BY ArtikelNr
+
+
+SELECT ArtikelNr, Titel, Artikelpreis, Erscheinungstermin
+FROM Artikel
+WHERE (CASE
+        WHEN EXTRACT(Year FROM Erscheinungstermin) < '2007'
+          THEN Artikelpreis - 0.10 * Artikelpreis
+        WHEN EXTRACT(Year FROM Erscheinungstermin) > '2007'
+          THEN Artikelpreis - 0.05 * Artikelpreis
+        ELSE Artikelpreis
+END) > 30
+AND Erscheinungstermin IS NOT NULL
+ORDER BY ArtikelNr
+
+FEHLERMELDUNGEN AUSGEBEN:
+
+RAISE EXCEPTION 'ALARM!!! GANZ SCHLIMMER FEHLER!!! ...';

@@ -1,0 +1,116 @@
+GEBUNDENER CURSOR:
+
+CREATE OR REPLACE FUNCTION curstest() RETURNS VOID AS $$
+DECLARE
+curs CURSOR FOR
+SELECT * FROM products;
+BEGIN
+OPEN curs;
+CLOSE curs;
+END;
+$$ LANGUAGE plpgsql;
+
+
+UNGEBUNDENER CURSOR (gibt alle Produktnamen kommagetrennt in einem Textstring aus):
+
+CREATE OR REPLACE FUNCTION curstest() RETURNS TEXT AS $$
+DECLARE
+curs REFCURSOR;
+pname TEXT;
+names TEXT;
+query TEXT;
+sep TEXT;
+BEGIN
+pname := '';
+names := '';
+query := 'SELECT name FROM products';
+OPEN curs FOR EXECUTE query;
+LOOP
+    FETCH curs INTO pname;
+    IF names <> '' THEN
+        sep := ', ';
+    ELSE
+        sep := '';
+    END IF;
+    EXIT WHEN NOT FOUND;
+    names := names || sep || pname;
+END LOOP;
+CLOSE curs;
+RETURN names;
+END;
+$$ LANGUAGE plpgsql;
+
+
+ARRAY ALS PARAMETER ÜBERGEBEN:
+
+CREATE FUNCTION my_method(TEXT) RETURNS VOID AS $$ 
+DECLARE
+       ids INT[];
+BEGIN
+       ids = string_to_array($1,',');
+       ...
+END $$ LANGUAGE plpgsql;
+
+
+FOREACH-SCHLEIFEN:
+
+CREATE FUNCTION curstest(ids INT[]) RETURNS INT AS $$ 
+DECLARE
+       el INT := 0;
+       ergebnis INT = 0;
+BEGIN
+   FOREACH el IN ARRAY ids LOOP
+       ergebnis := ergebnis + el;
+   END LOOP;
+   RETURN ergebnis;
+END;
+$$ LANGUAGE plpgsql;
+
+
+FOR-SCHLEIFEN:
+
+FOR i IN 1..10 LOOP
+    -- i will take on the values 1,2,3,4,5,6,7,8,9,10 within the loop
+END LOOP;
+
+FOR i IN REVERSE 10..1 LOOP
+    -- i will take on the values 10,9,8,7,6,5,4,3,2,1 within the loop
+END LOOP;
+
+FOR i IN REVERSE 10..1 BY 2 LOOP
+    -- i will take on the values 10,8,6,4,2 within the loop
+END LOOP;
+
+[ <<label>> ]
+FOR target IN EXECUTE text_expression [ USING expression [, ... ] ] LOOP
+    statements
+END LOOP [ label ];
+
+ORDER:
+
+FOR mviews IN SELECT * FROM cs_materialized_views ORDER BY sort_key LOOP
+
+
+NOCH NICHT AUSGEREIFT:
+
+CREATE FUNCTION curstest() RETURNS TEXT AS $$ 
+DECLARE
+       curs REFCURSOR;
+       el INT := 0;
+       pname TEXT;
+       ergebnis TEXT := '';
+BEGIN
+    OPEN curs FOR 
+        SELECT id, name
+        FROM products
+        ORDER BY id ASC;
+    FETCH curs INTO el, pname;
+    WHILE FOUND LOOP
+        -- RAISE EXCEPTION 'ACHTUNG FEHLER!!!';
+        ergebnis := ergebnis || ',' || el || ', ' || pname;
+    END LOOP;
+    CLOSE curs;
+    RETURN ergebnis;
+END;
+$$ LANGUAGE plpgsql;
+
