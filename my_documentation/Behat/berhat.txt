@@ -1,0 +1,33 @@
+Szenario: Describe it in Gherkin
+
+Feature: News admin panel
+In order to maintain a list of News
+As a site administrator
+I need to be able to edit News
+
+Scenario: Add new article
+Given I am on the "/admin/news" page
+When I click "New Article"
+And I fill in "Title" with "Learned BDD"
+And I press "Save"
+Then I should see "A new article was added"
+
+================================================
+
+Behat: Maps each step to PHP Callback
+
+The instrument which calls PHP callback functions 
+for each step.
+
+Installation via Composer:
+
+php composer.phar require --dev behat/behat
+
+oder in der composer.json:
+
+{
+    "require" : {
+        "behat/behat": "~3.0"
+    }
+}
+
