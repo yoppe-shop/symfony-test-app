@@ -1,0 +1,64 @@
+Szenario: Describe it in Gherkin
+
+Feature: News admin panel
+In order to maintain a list of News
+As a site administrator
+I need to be able to edit News
+
+Scenario: Add new article
+Given I am on the "/admin/news" page
+When I click "New Article"
+And I fill in "Title" with "Learned BDD"
+And I press "Save"
+Then I should see "A new article was added"
+
+================================================
+
+Behat: Maps each step to PHP Callback
+
+The instrument which calls PHP callback functions 
+for each step.
+
+(Installation via Composer (nicht empfehlenswert):
+php composer.phar require --dev behat/behat)
+
+oder in der composer.json:
+
+{
+    "require" : {
+        "behat/behat": "~3.0",
+        "behat/mink-extension": "^2.2",
+        "behat/mink-goutte-driver": "^1.2",
+        "behat/mink-selenium2-driver": "^1.3"
+    }
+}
+        "behat/mink-extension": "dev-master",
+Ausführen im Symfony-Ordner:
+php composer.phar update
+
+In vendor/behat/mink-extension/behat.yml konfigurieren:
+
+default:
+  # ...
+  extensions:
+    Behat\MinkExtension:
+      base_url: http://en.wikipedia.org/
+      sessions:
+        default:
+          goutte: ~
+          selenium2: ~
+          # The base URL you're testing
+          base_url: http://en.wikipedia.org/
+  suites:
+    default:
+      contexts:
+      - FeatureContext
+      - Behat\MinkExtension\Context\MinkContext
+
+Die Base-Url wird dann benutzt, wenn man z.B. für den Seitenaufruf
+/admin oder ähnlich benutzt.
+
+Aufruf des behat-Befehls aus dem Symfony-Ordner:
+vendor/bin/behat --help / --init usw.
+vendor/bin/behat -dl  listet die definierten Funktionen auf 
+
