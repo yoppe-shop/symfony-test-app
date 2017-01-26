@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+  <entity name="ShopBundle\Entity\Products" table="products">
+    <indexes>
+      <index name="idx_products_date_added" columns="products_date_added"/>
+      <index name="idx_products_model" columns="products_model"/>
+      <index name="idx_products_status" columns="products_status"/>
+    </indexes>
+    <id name="productsId" type="integer" column="products_id">
+      <generator strategy="IDENTITY"/>
+    </id>
+    <field name="productsEan" type="string" column="products_ean" length="128" nullable="true">
+      <options>
+        <option name="fixed"/>
+      </options>
+    </field>
+    <field name="productsQuantity" type="integer" column="products_quantity" nullable="false">
+      <options>
+        <option name="unsigned"/>
+      </options>
+    </field>
+    <field name="productsShippingtime" type="integer" column="products_shippingtime" nullable="false">
+      <options>
+        <option name="unsigned"/>
+      </options>
+    </field>
+    <field name="productsModel" type="string" column="products_model" length="64" nullable="true">
+      <options>
+        <option name="fixed"/>
+      </options>
+    </field>
+    <field name="groupPermission0" type="boolean" column="group_permission_0" nullable="false"/>
+    <field name="groupPermission1" type="boolean" column="group_permission_1" nullable="false"/>
+    <field name="groupPermission2" type="boolean" column="group_permission_2" nullable="false"/>
+    <field name="groupPermission3" type="boolean" column="group_permission_3" nullable="false"/>
+    <field name="groupPermission4" type="boolean" column="group_permission_4" nullable="false"/>
+    <field name="productsSort" type="integer" column="products_sort" nullable="false">
+      <options>
+        <option name="unsigned"/>
+        <option name="default">0</option>
+      </options>
+    </field>
+    <field name="productsImage" type="string" column="products_image" length="254" nullable="false">
+      <options>
+        <option name="fixed"/>
+      </options>
+    </field>
+    <field name="productsPrice" type="decimal" column="products_price" precision="15" scale="4" nullable="false"/>
+    <field name="productsDiscountAllowed" type="decimal" column="products_discount_allowed" precision="4" scale="2" nullable="false">
+      <options>
+        <option name="default">0.00</option>
+      </options>
+    </field>
+    <field name="productsDateAdded" type="datetime" column="products_date_added" nullable="false"/>
+    <field name="productsLastModified" type="datetime" column="products_last_modified" nullable="true"/>
+    <field name="productsDateAvailable" type="datetime" column="products_date_available" nullable="true"/>
+    <field name="productsWeight" type="decimal" column="products_weight" precision="6" scale="3" nullable="false"/>
+    <field name="productsStatus" type="integer" column="products_status" nullable="false">
+      <options>
+        <option name="unsigned"/>
+      </options>
+    </field>
+    <field name="productsTaxClassId" type="integer" column="products_tax_class_id" nullable="false">
+      <options>
+        <option name="unsigned"/>
+      </options>
+    </field>
+    <field name="productTemplate" type="string" column="product_template" length="64" nullable="true">
+      <options>
+        <option name="fixed"/>
+      </options>
+    </field>
+    <field name="optionsTemplate" type="string" column="options_template" length="64" nullable="true">
+      <options>
+        <option name="fixed"/>
+      </options>
+    </field>
+    <field name="manufacturersId" type="integer" column="manufacturers_id" nullable="true">
+      <options>
+        <option name="unsigned"/>
+      </options>
+    </field>
+    <field name="productsManufacturersModel" type="string" column="products_manufacturers_model" length="64" nullable="true">
+      <options>
+        <option name="fixed"/>
+      </options>
+    </field>
+    <field name="productsOrdered" type="integer" column="products_ordered" nullable="false">
+      <options>
+        <option name="unsigned"/>
+        <option name="default">0</option>
+      </options>
+    </field>
+    <field name="productsFsk18" type="integer" column="products_fsk18" nullable="false">
+      <options>
+        <option name="unsigned"/>
+        <option name="default">0</option>
+      </options>
+    </field>
+    <field name="productsVpe" type="integer" column="products_vpe" nullable="false">
+      <options>
+        <option name="unsigned"/>
+      </options>
+    </field>
+    <field name="productsVpeStatus" type="integer" column="products_vpe_status" nullable="false">
+      <options>
+        <option name="unsigned"/>
+        <option name="default">0</option>
+      </options>
+    </field>
+    <field name="productsVpeValue" type="decimal" column="products_vpe_value" precision="15" scale="4" nullable="false"/>
+    <field name="productsStartpage" type="integer" column="products_startpage" nullable="false">
+      <options>
+        <option name="unsigned"/>
+        <option name="default">0</option>
+      </options>
+    </field>
+    <field name="productsStartpageSort" type="integer" column="products_startpage_sort" nullable="false">
+      <options>
+        <option name="unsigned"/>
+        <option name="default">0</option>
+      </options>
+    </field>
+  </entity>
+</doctrine-mapping>

@@ -1,0 +1,3 @@
+SQL von Konsole aus ausführen:
+
+php bin/console doctrine:query:sql [--connection=xyz] "SELECT * FROM products"

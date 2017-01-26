@@ -2,6 +2,7 @@ imports:
     - { resource: parameters.yml }
     - { resource: security.yml }
     - { resource: services.yml }
+    - { resource: "@ShopBundle/Resources/config/services.yml" }
 #    - { resource: "@ServiceBundle/Resources/config/services.yml" }
 
 # Put parameters here that don't need to change on each machine where the app is deployed
@@ -56,6 +57,7 @@ doctrine:
                 server_version: 9.5
             mysql:
                 driver:   pdo_mysql
+                #schema_filter: ~^(products|products_description|products_attributes|products_options|products_options_values)$~
                 host:     localhost
                 port:     null
                 dbname:   shop

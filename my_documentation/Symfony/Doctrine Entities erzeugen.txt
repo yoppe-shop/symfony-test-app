@@ -17,11 +17,12 @@ Oder andersrum nur die Tabellen angeben, die ignoriert werden sollen:
 	
 Nun die Erzeugung von XML-Dateien in src/AppBundle/Ressources/config/doctrine/ durchführen:
 
-php app/console doctrine:mapping:import --force AppBundle xml
+$ php app/console doctrine:mapping:import --force [--em=mysql] [--filter="Meeting"] MyBundle xml
 
 Es wurden XML-Dateien erzeugt. Nun durch folgende zwei Zeilen die Entities herstellen:
 
 $ php app/console doctrine:mapping:convert annotation ./src
+$ php app/console doctrine:mapping:convert [--em=mysql] --from-database annotation ./src/ShopBundle/Entity
 
 Die Entities wurden erzeugt. Nun zum Schluss noch die Getter/Setter erzeugen lassen:
 
@@ -63,9 +64,18 @@ usw.
 }
 
 
-In der Konsole/Putty eingeben:
+Setter/Getter integrieren:
 
-php app/console doctrine:generate:entities AppBundle
+Vorher abchecken, sonst funktioniert es nicht:
+- In der Symfony-Datei app/config/config.yml MUSS "auto_mapping: true" für das betroffene ORM im Array "orm" eingestellt sein!!!
+- In den Entities muss oben der richtige Namespace stehen, z.B. namespace ShopBundle\Entity;
+- --no-backup bedeutet, dass kein Backup mit einer php~ der alten Entity gemacht werden soll:
+
+Befehl für alle Entities in dem Bundle:
+$ php app/console doctrine:generate:entities [--no-backup] MyBundle
+
+Befehl für eine Entity im Bundle:
+$ php app/console doctrine:generate:entities [--no-backup] MyBundle:Meeting
 
 Es werden nun automatisch die Getter und Setter in die Entity integriert.
 

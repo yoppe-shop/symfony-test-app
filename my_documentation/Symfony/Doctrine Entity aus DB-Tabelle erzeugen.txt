@@ -1,0 +1,106 @@
+Um Tabellen zu importieren, müssen die importierten Tabellen einen Primary Key haben, sonst wird ab der "fehlerhaften" Tabelle 
+die ganze Operation abgebrochen!
+
+Wenn nur bestimmte Tabellen importiert werden sollen, am besten temporär eine Whitelist in app/config/config.yml anlegen, 
+weil die Option --filter, die nur bestimmte Tabellen importieren soll, oft nicht funktioniert:
+
+doctrine:
+    dbal:
+        default_connection: default
+        connections:
+            default:
+                driver:   pdo_pgsql
+                host:     localhost
+                port:     5432
+                dbname:   shop
+                user:     shop
+                password: 123456
+                charset:  UTF8
+                server_version: 9.5
+            mysql:
+                driver:   pdo_mysql
+                schema_filter: ~^(products|products_description|products_attributes|products_options|products_options_values)$~
+                host:     localhost
+                port:     null
+                dbname:   shop
+                user:     root
+                password: 
+                charset:  UTF8
+
+
+Oder andersrum nur die Tabellen angeben, die ignoriert werden sollen:
+
+	schema_filter: ~^(?!(campaigns_ip|counter|coupons_description))~
+
+Command #1:
+
+$ php app/console doctrine:mapping:import --force [--em=mysql] [--filter="Meeting"] MyBundle xml
+
+Output:
+
+    writing C:\xampp\htdocs\localxyz\src\AppBundle/Resources/config/doctrine/Meeting.orm.xml
+
+
+Command #2:
+
+$ php app/console doctrine:mapping:convert [--em=mysql] --from-database annotation ./src/ShopBundle/Entity
+
+Output:
+
+    Processing entity "Meeting"
+
+    Exporting "annotation" mapping information to "C:\xampp\htdocs\localxyz\src\Entity"
+
+
+Command #3:
+
+Aufpassen, sonst funktioniert es nicht:
+- In der Symfony-Datei app/config/config.yml MUSS auto_mapping: true für das betroffene ORM eingestellt sein:
+
+    orm:
+        default_entity_manager: default
+        auto_generate_proxy_classes: "%kernel.debug%" 
+        entity_managers:
+            default:
+                connection: default
+                naming_strategy: doctrine.orm.naming_strategy.underscore
+                mappings:
+                    AppBundle: ~
+            mysql:
+                connection: mysql
+                naming_strategy: doctrine.orm.naming_strategy.underscore
+                auto_mapping: true
+                mappings:
+                    AppBundle: ~
+
+- In den Entities muss oben der richtige Namespace stehen, z.B. namespace ShopBundle\Entity;
+- --no-backup bedeutet, dass kein Backup mit einer php~ der alten Entity gemacht werden soll:
+
+Befehl für alle Entities in dem Bundle:
+$ php app/console doctrine:generate:entities [--no-backup] MyBundle
+
+Befehl für eine Entity im Bundle:
+$ php app/console doctrine:generate:entities [--no-backup] MyBundle:Meeting
+
+Output:
+
+    Generating entity "AppBundle\Entity\Meeting" generating AppBundle\Entity\Meeting
+
+where:
+
+AppBundle is exactly your "AppBundle" in 2.7 symfony Meeting is the target table (case sensitive)
+
+TO BE SURE, check this directory:
+
+C:\xampp\htdocs\myproj\src\AppBundle/Resources/config/doctrine/Meeting.orm.xml
+
+C:\xampp\htdocs\myproj\src\AppBundle/Resources/config/doctrine/MeetingOriginal.orm.xml
+
+AND MAKING SURE you only have .xml files for the table you want to create entity class files and no others.
+
+It works very well for me.
+
+For explanation please read: http://symfony.com/doc/current/cookbook/doctrine/reverse_engineering.html
+
+Falls es mit dem Filter nicht funktioniert, temporär eine Whitelist in der config.yml von Symfony angeben:
+
