@@ -5,12 +5,12 @@ namespace ShopBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * ProductsOptions
+ * ProductsOption
  *
  * @ORM\Table(name="products_options")
  * @ORM\Entity
  */
-class ProductsOptions
+class ProductsOption
 {
     /**
      * @var integer
@@ -43,8 +43,6 @@ class ProductsOptions
      * @ORM\Column(name="products_options_sortorder", type="integer", nullable=false)
      */
     private $productsOptionsSortorder;
-
-
 
     /**
      * Set productsOptionsName

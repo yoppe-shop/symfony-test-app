@@ -3,14 +3,16 @@
 namespace ShopBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
- * Products
+ * Product
  *
  * @ORM\Table(name="products", indexes={@ORM\Index(name="idx_products_date_added", columns={"products_date_added"}), @ORM\Index(name="idx_products_model", columns={"products_model"}), @ORM\Index(name="idx_products_status", columns={"products_status"})})
  * @ORM\Entity
  */
-class Products
+class Product
 {
     /**
      * @var integer
@@ -231,7 +233,20 @@ class Products
      */
     private $productsStartpageSort = '0';
 
+    /**
+    * @ORM\OneToMany(targetEntity="ProductsAttribute", mappedBy="product", cascade="persist")
+    */
+    private $productsAttributes;
 
+    public function __construct()
+    {
+        $this->productAttributes = new ArrayCollection();
+    }
+
+    public function __toString()
+    {
+        return $this->productsModel;
+    }
 
     /**
      * Set productsEan
@@ -961,5 +976,30 @@ class Products
     public function getProductsId()
     {
         return $this->productsId;
+    }
+
+    public function getProductAttributes()
+    {
+        return $this->productAttributes;
+    }
+
+    public function hasProductAttribute(ProductAttribute $productAttribute)
+    {
+        return $this->productAttributes->contains($productAttribute);
+    }
+
+    public function addProductAttribute(ProductAttribute $productAttribute)
+    {
+        $this->productAttributes->add($productAttribute);
+    }
+
+    public function removeProductAttribute(ProductAttribute $productAttribute)
+    {
+        $this->productAttributes->removeElement($productAttribute);
+    }
+
+    public function clearProductAttributes()
+    {
+        $this->productAttributes->clear();
     }
 }

@@ -1,0 +1,1 @@
+ean;model;image;price;weight;status;manufacturers_id;manufacturers_model;manufacturers_ean;name.de;description.de;short_description.de;a.farbe.de;a.material.de;a.marke.de;a.groesse.de;a.gewicht.de;a.einsatzart.de;a.weitere_informationen.de;a.gewicht_mit_verpackung.de

@@ -5,12 +5,12 @@ namespace ShopBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * ProductsOptionsValues
+ * ProductsOptionsValue
  *
  * @ORM\Table(name="products_options_values")
  * @ORM\Entity
  */
-class ProductsOptionsValues
+class ProductsOptionsValue
 {
     /**
      * @var integer

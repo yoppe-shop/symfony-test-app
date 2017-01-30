@@ -19,52 +19,17 @@ Nun die Erzeugung von XML-Dateien in src/AppBundle/Ressources/config/doctrine/ d
 
 $ php app/console doctrine:mapping:import --force [--em=mysql] [--filter="Meeting"] MyBundle xml
 
-Es wurden XML-Dateien erzeugt. Nun durch folgende zwei Zeilen die Entities herstellen:
+2. Es wurden XML-Dateien erzeugt. Nun durch folgende zwei Zeilen die Entities herstellen:
 
 $ php app/console doctrine:mapping:convert annotation ./src
+oder
 $ php app/console doctrine:mapping:convert [--em=mysql] --from-database annotation ./src/ShopBundle/Entity
 
-Die Entities wurden erzeugt. Nun zum Schluss noch die Getter/Setter erzeugen lassen:
+3. Die Entities wurden erzeugt. Nun zum Schluss noch die Getter/Setter erzeugen lassen:
 
 $ php app/console doctrine:generate:entities AppBundle
 
-2. Oder es sind schon die Entities da und es sollen von Doctrine nur die nötigen Getter/Setter hergestellt werden:
-
-Es muss in src/AppBundle/Entity die notwendige Entity angelegt werden.
- 
-In der Entity müssen die Felder und die notwendigen Annotations angegeben werden. Wichtig ist, dass über der Id @ORM\Id auftaucht und 
-bei den Werten die Typen angegeben werden. Z.B.:
-
-<?php
-namespace AppBundle\Entity;
-
-use Doctrine\ORM\Mapping as ORM;
-
-/**
- * @ORM\Entity
- * @ORM\Table(name="products")
- */
-class Product
-{
-    /**
-    * @ORM\Column(type="integer")
-    * @ORM\Id
-    * @ORM\GeneratedValue(strategy="AUTO")
-	*/
-	protected $products_id;
-	/**
-	* @ORM\Column(type="string", length=255)
-	*/
-	protected $products_ean;
-	/**
-	* @ORM\Column(type="integer", length=255)
-	*/
-	protected $number;
-usw.
-}
-
-
-Setter/Getter integrieren:
+Entity anlegen oder es sind schon die Entities da und es sollen von Doctrine nur die nötigen Getter/Setter hergestellt werden:
 
 Vorher abchecken, sonst funktioniert es nicht:
 - In der Symfony-Datei app/config/config.yml MUSS "auto_mapping: true" für das betroffene ORM im Array "orm" eingestellt sein!!!

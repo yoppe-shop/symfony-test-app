@@ -3,14 +3,16 @@
 namespace ShopBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
- * ProductsAttributes
+ * ProductsAttribute
  *
  * @ORM\Table(name="products_attributes", indexes={@ORM\Index(name="idx_products_id", columns={"products_id"}), @ORM\Index(name="idx_options", columns={"options_id", "options_values_id"})})
  * @ORM\Entity
  */
-class ProductsAttributes
+class ProductsAttribute
 {
     /**
      * @var integer
@@ -112,7 +114,23 @@ class ProductsAttributes
      */
     private $attributesVpeValue;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="Product", inversedBy="productsAttributes", cascade="persist")
+     * @ORM\JoinColumn(name="products_id", referencedColumnName="products_id")
+     */
+    private $product;
 
+    /*
+    * @ORM\OneToOne(targetEntity="ProductsOption")
+    * @ORM\JoinColumn(name="options_id", referencedColumnName="products_options_id")
+    */
+    private $productsOption;
+
+    /*
+    * @ORM\OneToOne(targetEntity="ProductsOptionsValue")
+    * @ORM\JoinColumn(name="options_values_id", referencedColumnName="products_options_values_id")
+    */
+    private $productsOptionsValue;
 
     /**
      * Set productsId
@@ -434,5 +452,41 @@ class ProductsAttributes
     public function getProductsAttributesId()
     {
         return $this->productsAttributesId;
+    }
+
+    public function getProduct()
+    {
+        return $this->product;
+    }
+
+    public function setProduct(Product $product)
+    {
+        $this->product = $product;
+
+        return $this;
+    }
+
+    public function getProductsOption()
+    {
+        return $this->productsOption;
+    }
+
+    public function setProductsOption(ProductsOption $productsOption)
+    {
+        $this->productsOption = $productsOption;
+
+        return $this;
+    }
+
+    public function getProductsOptionsValue()
+    {
+        return $this->productsOptionsValue;
+    }
+
+    public function setProductsOptionsValue(ProductsOptionsValue $productsOptionsValue)
+    {
+        $this->productsOptionsValue = $productsOptionsValue;
+
+        return $this;
     }
 }

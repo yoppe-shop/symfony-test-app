@@ -1,0 +1,25 @@
+Foreign key anlegen:
+
+Achtung:
+1. Wenn man den Befehl im phpMyAdmin eingibt, muss man unten 
+den Haken bei "Fremdschlüsselüberprüfung aktivieren" entfernen, 
+da sonst scheinbar ein Zirkelschluss entsteht!!!
+2. Fremschlüssel nur auf Felder mit Primärschlüssel in anderer 
+Tabelle möglich. Bei zusammengesetzten Primärschlüsseln kann sich 
+der Fremdschlüssel auf ein Feld beschränken.
+
+Als SQL:
+
+ALTER TABLE `products_options_short_names` 
+ADD CONSTRAINT fk_products_options 
+FOREIGN KEY (products_options_id) 
+REFERENCES products_options(products_options_id);
+
+Im phpMyAdmin-Menü:
+
+Auf "Struktur" gehen und oben auf "Beziehungsansicht" klicken.
+Oben kann man dann Beziehungen herstellen.
+
+Ansehen des Constraints:
+
+Auf "Struktur" gehen und oben auf "Beziehungsansicht" klicken.

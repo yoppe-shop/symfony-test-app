@@ -11,7 +11,7 @@ name.de
 description.de
 short_description.de
 a+.attr_name.de: Füge das Attribut, falls nicht vorhanden, hinzu
-ar.attr_name.de: Füge das Attribut hinzu oder, falls vorhanden
+a.attr_name.de: Füge das Attribut hinzu oder, falls vorhanden
                  ersetze das vorhandene Attribut
 a-.attr_name.de: Lösche das Attribute aus diesem Produkt 
 
@@ -25,7 +25,3 @@ einsatzart
 weitere informationen
 gewicht_mit_verpackung
 
-ALTER TABLE `products_options_short_names` 
-ADD CONSTRAINT fk_products_options 
-FOREIGN KEY (products_options_id, language_id) 
-REFERENCES products_options(products_options_id, language_id);
