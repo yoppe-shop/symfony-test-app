@@ -85,11 +85,10 @@ doctrine:
             mysql:
                 connection: mysql
                 naming_strategy: doctrine.orm.naming_strategy.underscore
-                auto_mapping: true
+                #auto_mapping: true
                 mappings:
                     AppBundle: ~
-                    ShopBundle:
-                        type: annotation
+                    ShopBundle: ~
 
 # Swiftmailer Configuration
 swiftmailer:

@@ -39,10 +39,10 @@ class TestController extends Controller
     {
         $utils = $this->get('utils');
         $debug = $this->get('debug');
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager('mysql');
 
         $sql = "
-            SELECT p.id as pid, model, name, pa.product_option_id 
+            SELECT *
             FROM products p
             INNER JOIN product_attributes pa ON pa.product_id = p.id
             WHERE p.id > '1'
@@ -54,7 +54,7 @@ class TestController extends Controller
 
         $rsm = new ResultSetMappingBuilder($em);
         $rsm->addRootEntityFromClassMetadata('AppBundle:Product', 'p', ['id' => 'pid']);
-        $rsm->addJoinedEntityFromClassMetadata('AppBundle:ProductAttribute', 'pa', 'p', 'productAttributes');
+        $rsm->addJoinedEntityFromClassMetadata('AppBundle:ProductsAttribute', 'pa', 'p', 'productsAttributes');
         $query = $em->createNativeQuery($sql, $rsm);
 
         $products = $query->getResult();
