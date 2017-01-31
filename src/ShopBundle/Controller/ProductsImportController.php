@@ -13,11 +13,11 @@ use ShopBundle\Entity\ProductsOptionsValue;
 
 class ProductsImportController extends Controller
 {
-    protected $csvLineSep;
+    protected $csvFieldSep;
 
     public function __construct()
     {
-        $this->csvLineSep = ";";
+        $this->csvFieldSep = ";";
     }
 
     /**
@@ -37,7 +37,7 @@ class ProductsImportController extends Controller
         $debug = $this->get('debug');
 
         $em = $this->getDoctrine()->getManager();
-
+ 
         return $this->render('ShopBundle:ProductsImport:csv_import.html.twig', [
         ]);
     }
@@ -47,26 +47,25 @@ class ProductsImportController extends Controller
         /**
         * Returns Arrays $product, $productsDescription, $productsImage, $attributes
         */
-        $this->removeRLineFeed($csv);
+        $this->initializeCsvFile($csv);
 
         $lines = explode("\n", $csv);
         $titleOfIndexes = $this->titleOfIndexes($lines[0]);
 
         unset($lines[0]);
 
-        extract($this->createDataArrays($line[1], $titleOfIndexes));
-        
-
+        return $this->createDataArrays($line[1], $titleOfIndexes);
     }
 
-    protected function removeRLineFeed(&$csv)
+    protected function initializeCsvFile(&$csv)
     {
-        $csv = str_replace("\r", "", $csv);
+        //$csv = str_replace("\r", "", $csv);
+        $csv = str_replace("B", "P", $csv);
     }
 
     protected function titleOfIndexes($line0)
     {
-        return explode($this->csvLineSep, $line0);
+        return explode($this->csvFieldSep, $line0);
     }
 
     protected function createDataArrays($em, &$line, $titleOfIndexes)
@@ -77,7 +76,7 @@ class ProductsImportController extends Controller
         $product = array();
         $productDescription = array();
         $attributes = array();
-        $rawData = explode($this->csvLineSep, $line);
+        $rawData = explode($this->csvFieldSep, $line);
 
         $productsFields = $em->getClassMetadata('ShopBundle:Product')->getFieldNames();
         $productsDescriptionFields = $em->getClassMetadata('ShopBundle:ProductsDescription')->getFieldNames();

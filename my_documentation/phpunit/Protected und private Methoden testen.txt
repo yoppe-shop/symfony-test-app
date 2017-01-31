@@ -1,0 +1,18 @@
+PHPUnit - protected/private Methoden aufrufen [und Argumente per Referenz übergeben]:
+
+    public function testGetCsvProductData()
+    {
+        $this->testCsvImportAction();
+        $initializeCsvFile = self::getMethod('ShopBundle\\Controller\\ProductsImportController', 'initializeCsvFile');
+        $productsImport = new ProductsImportController();
+        $initializeCsvFile->invokeArgs($productsImport, [&$this->csv]);
+        echo $this->csv;
+    }
+
+  protected static function getMethod($className, $methodName)
+  {
+      $class = new \ReflectionClass($className);
+      $method = $class->getMethod($methodName);
+      $method->setAccessible(true);
+      return $method;
+  }

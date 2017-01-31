@@ -1,4 +1,4 @@
-Native-Querys mit dem Native Query-Builder:
+1. Native-Querys mit dem Native Query-Builder:
 
 use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\ORM\Query\ResultSetMappingBuilder;
@@ -6,7 +6,7 @@ use Doctrine\ORM\Query\ResultSetMappingBuilder;
 class NativeSqlController extends Controller
 {
     /**
-    * @Route("/test/native")
+    * @Route("/native/native")
     */
     public function nativeAction()
     {
@@ -34,6 +34,78 @@ class NativeSqlController extends Controller
             ORDER BY p.id ASC
         ";
 
+        $query = $em->createNativeQuery($sql, $rsm);
+        $products = $query->getResult();
+
+        $debug->pr($products, 5);
+
+        return new Response (
+            'Controllerausgabe'
+        );
+    }
+
+2. Native Queries ohne den Builder:
+
+    HINWEIS: Würde in der Query die Assotiation nicht aufgerufen werden, müsste diese mit $rsm->addMetaResult angegeben werden.
+
+    /**
+    * @Route("/native/builder")
+    */
+    public function builderAction()
+    {
+        $utils = $this->get('utils');
+        $debug = $this->get('debug');
+
+        $em = $this->getDoctrine()->getManager();
+
+        $rsm = new ResultSetMapping();
+        $rsm->addEntityResult('AppBundle:Product', 'p');
+
+        /**
+        * addFieldResult: Adds a field result that is part of an entity result or joined entity result.
+        *
+        * @param string $alias The alias of the entity result or joined entity result.
+        * @param string $columnName The name of the column in the SQL result set.
+        * @param string $fieldName The name of the field on the (joined) entity.
+        *
+        *  public function addFieldResult($alias, $columnName, $fieldName)
+        */
+
+        $rsm->addFieldResult('p', 'id', 'id');
+        $rsm->addFieldResult('p', 'model', 'model');        
+        $rsm->addFieldResult('p', 'name', 'name');
+        $rsm->addJoinedEntityResult('AppBundle:ProductAttribute' , 'pa', 'p', 'productAttributes');
+        $rsm->addFieldResult('pa', 'pa_id', 'id');
+        $rsm->addFieldResult('pa', 'productId', 'product_id'); 
+        $rsm->addFieldResult('pa', 'productOptionId', 'product_option_id');        
+        $rsm->addFieldResult('pa', 'productOptionValueId', 'product_option_value_id');
+
+        /**
+        * Adds a scalar result mapping.
+        *
+        * @param string $columnName The name of the column in the SQL result set.
+        * @param string $alias The result alias with which the scalar result should be placed in the result structure.
+        *
+        * public function addScalarResult($columnName, $alias)
+        */
+
+        /**
+        * Adds a meta column (foreign key or discriminator column) to the result set.
+        *
+        * @param string  $alias
+        * @param string  $columnAlias
+        * @param string  $columnName
+        * @param boolean $isIdentifierColumn
+        * public function addMetaResult($alias, $columnAlias, $columnName, $isIdentifierColumn = false)
+        */
+
+        $sql = "
+            SELECT p.id, p.model, p.name, pa.id AS pa_id, pa.product_id, pa.product_option_id, pa.product_option_value_id
+            FROM products p
+            LEFT JOIN product_attributes pa ON pa.product_id = p.id
+            WHERE p.id >= '1'
+            ORDER BY p.id ASC
+        ";
 
         $query = $em->createNativeQuery($sql, $rsm);
         $products = $query->getResult();
@@ -43,4 +115,35 @@ class NativeSqlController extends Controller
         return new Response (
             'Controllerausgabe'
         );
+    }
+
+3. "Native" Querys als Arrays mit PDO:
+
+    /**
+    * @Route("/native/pdo")
+    */
+    public function pdoAction()
+    {
+        $utils = $this->get('utils');
+        $debug = $this->get('debug');
+
+        $em= $this->getDoctrine()->getManager();
+        $db = $em->getConnection();
+
+        $sql = "
+            SELECT p.id, p.model, p.name, pa.id AS pa_id, pa.product_id, pa.product_option_id, pa.product_option_value_id
+            FROM products p
+            LEFT JOIN product_attributes pa ON pa.product_id = p.id
+            WHERE p.id >= '1'
+            ORDER BY p.id ASC
+        ";
+
+        $res = $db->query($sql);
+        $rows = $res->fetchAll(\PDO::FETCH_ASSOC);
+
+        $debug->pr($rows);
+
+        return new Response (
+            ''
+        );      
     }

@@ -17,9 +17,9 @@ use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\ORM\Query\ResultSetMappingBuilder;
 use Symfony\Component\HttpFoundation\Session\Session;
 
-// Klasse TestController (Kommentar für GIT)
+// Klasse NativeSqlController (Kommentar für GIT)
 
-class TestController extends Controller
+class NativeSqlController extends Controller
 {
     /**
      * @Route("/test/", name="homepage_test")
@@ -33,9 +33,9 @@ class TestController extends Controller
     }
 
     /**
-    * @Route("/test/native")
+    * @Route("/native/builder")
     */
-    public function nativeAction()
+    public function nativeBuilderAction()
     {
         $utils = $this->get('utils');
         $debug = $this->get('debug');
@@ -51,7 +51,7 @@ class TestController extends Controller
         */
 
         $rsm->addRootEntityFromClassMetadata('AppBundle:Product', 'p', ['id' => 'pid']);
-        $rsm->addJoinedEntityFromClassMetadata('AppBundle:ProductAttribute', 'pa', 'p', 'productAttributes',['id' => 'aid']);
+        $rsm->addJoinedEntityFromClassMetadata('AppBundle:ProductAttribute', 'pa', 'p', 'productAttributes', ['id' => 'aid']);
         $sql = "
             SELECT p.id as pid, p.model, p.name, pa.id as aid, pa.product_option_id, pa.product_option_value_id
             FROM products p
@@ -64,7 +64,7 @@ class TestController extends Controller
         $query = $em->createNativeQuery($sql, $rsm);
         $products = $query->getResult();
 
-        $debug->pr($products, 5);
+        $debug->pr($products, 4);
 
         return new Response (
             'Controllerausgabe'
@@ -72,7 +72,57 @@ class TestController extends Controller
     }
 
     /**
-    * @Route("/test/pdo")
+    * @Route("/native/native")
+    */
+    public function nativeAction()
+    {
+        $utils = $this->get('utils');
+        $debug = $this->get('debug');
+
+        $em = $this->getDoctrine()->getManager();
+
+        $rsm = new ResultSetMapping();
+        $rsm->addEntityResult('AppBundle:Product', 'p');
+
+        /**
+        * addFieldResult: Adds a field result that is part of an entity result or joined entity result.
+        *
+        * @param string $alias The alias of the entity result or joined entity result.
+        * @param string $columnName The name of the column in the SQL result set.
+        * @param string $fieldName The name of the field on the (joined) entity.
+        *
+        *  public function addFieldResult($alias, $columnName, $fieldName)
+        */
+
+        $rsm->addFieldResult('p', 'id', 'id');
+        $rsm->addFieldResult('p', 'model', 'model');        
+        $rsm->addFieldResult('p', 'name', 'name');
+        $rsm->addJoinedEntityResult('AppBundle:ProductAttribute' , 'pa', 'p', 'productAttributes');
+        $rsm->addFieldResult('pa', 'pa_id', 'id');
+        $rsm->addFieldResult('pa', 'productId', 'product_id'); 
+        $rsm->addFieldResult('pa', 'productOptionId', 'product_option_id');        
+        $rsm->addFieldResult('pa', 'productOptionValueId', 'product_option_value_id');
+
+        $sql = "
+            SELECT p.id, p.model, p.name, pa.id AS pa_id, pa.product_id, pa.product_option_id, pa.product_option_value_id
+            FROM products p
+            LEFT JOIN product_attributes pa ON pa.product_id = p.id
+            WHERE p.id >= '1'
+            ORDER BY p.id ASC
+        ";
+
+        $query = $em->createNativeQuery($sql, $rsm);
+        $products = $query->getResult();
+
+        $debug->pr($products, 4);
+
+        return new Response (
+            'Controllerausgabe'
+        );
+    }
+
+    /**
+    * @Route("/native/pdo")
     */
     public function pdoAction()
     {
@@ -83,13 +133,13 @@ class TestController extends Controller
         $db = $em->getConnection();
 
         $sql = "
-            SELECT *
+            SELECT p.id, p.model, p.name, pa.id AS pa_id, pa.product_id, pa.product_option_id, pa.product_option_value_id
             FROM products p
-            INNER JOIN product_attributes pa ON pa.product_id = p.id
+            LEFT JOIN product_attributes pa ON pa.product_id = p.id
             WHERE p.id >= '1'
+            ORDER BY p.id ASC
         ";
 
- 
         $res = $db->query($sql);
         $rows = $res->fetchAll(\PDO::FETCH_ASSOC);
 
@@ -171,7 +221,6 @@ class TestController extends Controller
             ''
         );
     }
-
 
     public function getNumAttr($em, $id)
     {

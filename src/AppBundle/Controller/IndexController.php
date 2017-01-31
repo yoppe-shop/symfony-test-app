@@ -40,39 +40,19 @@ class IndexController extends Controller
     */
     public function modelAction()
     {
+        $debug = $this->get('debug');
+
         $em = $this->getDoctrine()->getManager();
-        
-        $article = new Article();
-        $article->setTitle("Symfony");
-        $article->setTeaser("Symfony Teaser");
-        $article->setNews("Die neuesten Symfony News");
-        $article->setCreatedAt("now");
-        $article->setPublishAt("now");
-
-        $user = $em
-            ->getRepository('AppBundle:User')
-            ->find(1)
-        ;
-
-        $article->setUser($user);
-        $em->persist($article);
-        $em->flush();
-
-        $articles = $em->createQuery('
-            SELECT a, u 
-            FROM Entities\Article a 
-            LEFT JOIN a.users u
-        ');
-
-        // Debug::dump($articles, 5, false);
-        $tag = new Tag();
-        $tag->setTitle("HTML");
-
-        $tags = $em
-            ->getRepository('AppBundle:Tag')
-            ->findDuplicates($tag)
-        ;
-        Debug::dump($tags, 5, false);
+  
+        $products = $em->createQuery('
+            SELECT p, pa
+            FROM AppBundle:Product p 
+            LEFT JOIN p.productAttributes pa
+            ORDER BY p.id ASC
+        ')
+        ->getResult();
+        // echo $products[1]['model'] . "<br /><br />";
+        $debug->pr($products, 5);
 
         return new Response (
             'Das ist die Testausgabe!'
