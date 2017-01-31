@@ -1,3 +1,6 @@
+Wenn in einem anderen Bundle als AppBundle die Fehlermeldung kommt, dass keine XML-Datei vorhanden ist, 
+muss scheinbar im Bundle als "type" der Wert "annotation" eingestellt sein:
+    
     orm:
         default_entity_manager: default
         auto_generate_proxy_classes: "%kernel.debug%" 

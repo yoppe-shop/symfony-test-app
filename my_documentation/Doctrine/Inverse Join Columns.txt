@@ -1,0 +1,48 @@
+<?php
+// user mapping
+namespace MyProject\Model;
+/**
+ * @MappedSuperclass
+ */
+class User
+{
+    //other fields mapping
+
+    /**
+     * @ManyToMany(targetEntity="Group", inversedBy="users")
+     * @JoinTable(name="users_groups",
+     *  joinColumns={@JoinColumn(name="user_id", referencedColumnName="id")},
+     *  inverseJoinColumns={@JoinColumn(name="group_id", referencedColumnName="id")}
+     * )
+     */
+    protected $groups;
+
+    /**
+     * @ManyToOne(targetEntity="Address")
+     * @JoinColumn(name="address_id", referencedColumnName="id")
+     */
+    protected $address;
+}
+
+// admin mapping
+namespace MyProject\Model;
+/**
+ * @Entity
+ * @AssociationOverrides({
+ *      @AssociationOverride(name="groups",
+ *          joinTable=@JoinTable(
+ *              name="users_admingroups",
+ *              joinColumns=@JoinColumn(name="adminuser_id"),
+ *              inverseJoinColumns=@JoinColumn(name="admingroup_id")
+ *          )
+ *      ),
+ *      @AssociationOverride(name="address",
+ *          joinColumns=@JoinColumn(
+ *              name="adminaddress_id", referencedColumnName="id"
+ *          )
+ *      )
+ * })
+ */
+class Admin extends User
+{
+}

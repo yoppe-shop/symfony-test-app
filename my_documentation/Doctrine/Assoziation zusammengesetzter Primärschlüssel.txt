@@ -1,0 +1,10 @@
+Verlinkungen von Tabellen mit zusammengesetztem Primärschlüssel:
+
+    /**
+    * @ORM\OneToOne(targetEntity="ProductsOption")
+    * @ORM\JoinColumns({
+    *     @ORM\JoinColumn(name="options_id", referencedColumnName="products_options_id"),
+    *     @ORM\JoinColumn(name="language_id", referencedColumnName="language_id")
+    * })
+    */
+    private $productsOption;

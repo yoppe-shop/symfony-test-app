@@ -240,7 +240,7 @@ class Product
 
     public function __construct()
     {
-        $this->productAttributes = new ArrayCollection();
+        $this->productsAttributes = new ArrayCollection();
     }
 
     public function __toString()
@@ -978,28 +978,28 @@ class Product
         return $this->productsId;
     }
 
-    public function getProductAttributes()
+    public function getProductsAttributes()
     {
-        return $this->productAttributes;
+        return $this->productsAttributes;
     }
 
-    public function hasProductAttribute(ProductAttribute $productAttribute)
+    public function hasProductsAttribute(ProductAttribute $productsAttribute)
     {
-        return $this->productAttributes->contains($productAttribute);
+        return $this->productsAttributes->contains($productAttribute);
     }
 
-    public function addProductAttribute(ProductAttribute $productAttribute)
+    public function addProductsAttribute(ProductAttribute $productsAttribute)
     {
-        $this->productAttributes->add($productAttribute);
+        $this->productsAttributes->add($productsAttribute);
     }
 
-    public function removeProductAttribute(ProductAttribute $productAttribute)
+    public function removeProductsAttribute(ProductAttribute $productsAttribute)
     {
-        $this->productAttributes->removeElement($productAttribute);
+        $this->productsAttributes->removeElement($productsAttribute);
     }
 
-    public function clearProductAttributes()
+    public function clearProductsAttributes()
     {
-        $this->productAttributes->clear();
+        $this->productsAttributes->clear();
     }
 }

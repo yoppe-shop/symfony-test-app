@@ -28,7 +28,7 @@ class ProductsOptionsValue
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="NONE")
      */
-    private $languageId;
+    private $languageId = "2";
 
     /**
      * @var string
@@ -37,7 +37,11 @@ class ProductsOptionsValue
      */
     private $productsOptionsValuesName = '';
 
-
+    /**
+     * @ORM\ManyToOne(targetEntity="ProductsAttribute", inversedBy="productsOptionsValues")
+     * @ORM\JoinColumn(name="products_options_values_id", referencedColumnName="options_values_id")
+     */
+    private $productsAttribute;
 
     /**
      * Set productsOptionsValuesName
@@ -109,5 +113,17 @@ class ProductsOptionsValue
     public function getLanguageId()
     {
         return $this->languageId;
+    }
+
+    public function getProductsAttribute()
+    {
+        return $this->productsAttribute;
+    }
+
+    public function setProductsAttribute(ProductsAttribute $productsAttribute)
+    {
+        $this->productsAttribute = $productsAttribute;
+
+        return $this;
     }
 }
