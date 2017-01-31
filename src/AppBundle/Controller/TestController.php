@@ -33,42 +33,71 @@ class TestController extends Controller
     }
 
     /**
-    * @Route("/test/model")
+    * @Route("/test/native")
     */
-    public function modelAction()
+    public function nativeAction()
     {
         $utils = $this->get('utils');
         $debug = $this->get('debug');
-        $em = $this->getDoctrine()->getManager('mysql');
 
-        $sql = "
-            SELECT *
-            FROM products p
-            INNER JOIN product_attributes pa ON pa.product_id = p.id
-            WHERE p.id > '1'
-        ";
-
-        //$rsm = new ResultSetMapping();
-        //$rsm->addEntityResult('AppBundle:Product', 'p');
-        //$rsm->addJoinedEntityResult('AppBundle:ProductAttribute', 'pa', 'p', 'productAttributes');
+        $em = $this->getDoctrine()->getManager();
 
         $rsm = new ResultSetMappingBuilder($em);
-        $rsm->addRootEntityFromClassMetadata('AppBundle:Product', 'p', ['id' => 'pid']);
-        $rsm->addJoinedEntityFromClassMetadata('AppBundle:ProductsAttribute', 'pa', 'p', 'productsAttributes');
-        $query = $em->createNativeQuery($sql, $rsm);
 
+        /**
+        * HINWEIS: Es dürfen keine gleichlautenden Felder aus verschiedenen Tabellen benutzt werden. Deshalb MÜSSEN die Queries
+        * diese Felder umbenennen, damit sie unique Namen haben. In den $rsm-Funktionen müssen diese Felder aufgeführt werden, 
+        * sodass das ResultSetMapping sie dann wieder in die ursprünglichen Feldnamen übersetzt.
+        */
+
+        $rsm->addRootEntityFromClassMetadata('AppBundle:Product', 'p', ['id' => 'pid']);
+        $rsm->addJoinedEntityFromClassMetadata('AppBundle:ProductAttribute', 'pa', 'p', 'productAttributes',['id' => 'aid']);
+        $sql = "
+            SELECT p.id as pid, p.model, p.name, pa.id as aid, pa.product_option_id, pa.product_option_value_id
+            FROM products p
+            LEFT JOIN product_attributes pa ON pa.product_id = p.id
+            WHERE p.id >= '1'
+            ORDER BY p.id ASC
+        ";
+
+
+        $query = $em->createNativeQuery($sql, $rsm);
         $products = $query->getResult();
-        foreach ($products as $product) {
-            echo "Produkt: " . $product->getModel() . " " . $product->getName() . "<br />";
-            $productAttributes = $product->getProductAttributes();
-            $debug->pr($productAttributes);
-        }
 
         $debug->pr($products, 5);
 
         return new Response (
             'Controllerausgabe'
         );
+    }
+
+    /**
+    * @Route("/test/pdo")
+    */
+    public function pdoAction()
+    {
+        $utils = $this->get('utils');
+        $debug = $this->get('debug');
+
+        $em= $this->getDoctrine()->getManager();
+        $db = $em->getConnection();
+
+        $sql = "
+            SELECT *
+            FROM products p
+            INNER JOIN product_attributes pa ON pa.product_id = p.id
+            WHERE p.id >= '1'
+        ";
+
+ 
+        $res = $db->query($sql);
+        $rows = $res->fetchAll(\PDO::FETCH_ASSOC);
+
+        $debug->pr($rows);
+
+        return new Response (
+            ''
+        );      
     }
 
     /**

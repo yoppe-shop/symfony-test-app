@@ -1,55 +1,46 @@
-Native Queries
+Native-Querys mit dem Native Query-Builder:
 
-http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/native-sql.html
-
-Man kann "normale" Queries für komplizierte Abfragen in Doctrine kreieren;
-
-<?php
 use Doctrine\ORM\Query\ResultSetMapping;
-
-$rsm = new ResultSetMapping();
-// build rsm here
-
-$query = $entityManager->createNativeQuery('SELECT id, name, discr FROM users WHERE name = ?', $rsm);
-$query->setParameter(1, 'romanb');
-
-$users = $query->getResult();
-
-
-Für das Mapping muss ein ResultSetMapping gemacht werden:
-
-<?php
-
 use Doctrine\ORM\Query\ResultSetMappingBuilder;
 
-$sql = "SELECT u.id, u.name, a.id AS address_id, a.street, a.city " .
-       "FROM users u INNER JOIN address a ON u.address_id = a.id";
+class NativeSqlController extends Controller
+{
+    /**
+    * @Route("/test/native")
+    */
+    public function nativeAction()
+    {
+        $utils = $this->get('utils');
+        $debug = $this->get('debug');
 
-$rsm = new ResultSetMappingBuilder($entityManager);
-$rsm->addRootEntityFromClassMetadata('MyProject\User', 'u');
-$rsm->addJoinedEntityFromClassMetadata('MyProject\Address', 'a', 'u', 'address', array('id' => 'address_id'));
+        $em = $this->getDoctrine()->getManager();
+
+        $rsm = new ResultSetMappingBuilder($em);
+
+        /**
+        * HINWEIS: Es dürfen keine gleichlautenden Felder aus verschiedenen Tabellen benutzt werden. Deshalb MÜSSEN die Queries
+        * diese Felder umbenennen, damit sie unique Namen haben. In den $rsm-Funktionen müssen diese Felder aufgeführt werden, 
+        * sodass das ResultSetMapping sie dann wieder in die ursprünglichen Feldnamen übersetzt. Im vorliegenden Fall haben die 
+        * Tabellen products und productAttributes den gleichen Namen "id" für ihren Primärschlüssel:
+        */
+
+        $rsm->addRootEntityFromClassMetadata('AppBundle:Product', 'p', ['id' => 'pid']);
+        $rsm->addJoinedEntityFromClassMetadata('AppBundle:ProductAttribute', 'pa', 'p', 'productAttributes',['id' => 'aid']);
+        $sql = "
+            SELECT p.id as pid, p.model, p.name, pa.id as aid, pa.product_option_id, pa.product_option_value_id
+            FROM products p
+            LEFT JOIN product_attributes pa ON pa.product_id = p.id
+            WHERE p.id >= '1'
+            ORDER BY p.id ASC
+        ";
 
 
+        $query = $em->createNativeQuery($sql, $rsm);
+        $products = $query->getResult();
 
-New in version 2.4.
+        $debug->pr($products, 5);
 
-Starting with Doctrine ORM 2.4 you can generate the SELECT clause from a ResultSetMappingBuilder. You can either cast the builder object to (string) and the DQL aliases are used as SQL table aliases or use the generateSelectClause($tableAliases) method and pass a mapping from DQL alias (key) to SQL alias (value)
-
-<?php
-
-$selectClause = $builder->generateSelectClause(array(
-    'u' => 't1',
-    'g' => 't2'
-));
-$sql = "SELECT " . $selectClause . " FROM users t1 JOIN groups t2 ON t1.group_id = t2.id";
-
-16.3. The ResultSetMapping
-
-Understanding the ResultSetMapping is the key to using a NativeQuery. A Doctrine result can contain the following components:
-
-    Entity results. These represent root result elements.
-    Joined entity results. These represent joined entities in associations of root entity results.
-    Field results. These represent a column in the result set that maps to a field of an entity. A field result always belongs to an entity result or joined entity result.
-    Scalar results. These represent scalar values in the result set that will appear in each result row. Adding scalar results to a ResultSetMapping can also cause the overall result to become mixed (see DQL - Doctrine Query Language) if the same ResultSetMapping also contains entity results.
-    Meta results. These represent columns that contain meta-information, such as foreign keys and discriminator columns. When querying for objects (getResult()), all meta columns of root entities or joined entities must be present in the SQL query and mapped accordingly using ResultSetMapping#addMetaResult.
-
+        return new Response (
+            'Controllerausgabe'
+        );
+    }
