@@ -26,6 +26,7 @@ class ProductsImportControllerTest extends WebTestCase
     public function testCsvImportAction()
     {
         echo "Hallo, ich bin eine wichtige Git Hotfix-Änderung!!!";
+        echo "Im Bundle definierter Dir-Separator: " . DIR_SEP . " Ende<br />";
         $this->csv = "Hallo, wie gehts im Büro???"; // file_get_contents(static::$kernel->getRootDir() . self::DIR_SEP . ".." . self::DIR_SEP . "src" . self::DIR_SEP . "ShopBundle" . self::DIR_SEP . "Resources" . self::DIR_SEP . "testFiles" . self::DIR_SEP . "product_test.csv");
     }
 
