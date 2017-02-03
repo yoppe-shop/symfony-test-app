@@ -25,6 +25,7 @@ class ProductsImportController extends Controller
      */
     public function indexAction()
     {
+        echo "Dir-Separator: " . DIR_SEP . "<br />";
         return $this->render('ShopBundle:ProductsImport:csv_import.html.twig');
     }
 
