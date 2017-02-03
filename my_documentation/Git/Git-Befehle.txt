@@ -360,6 +360,12 @@ git push origin <branchname>
 // Branch im Remote löschen:
 git push origin --delete <branchname>
 
+// Branch umbenennen:
+git branch -m oldname newname
+
+// Current Branch umbenennen:
+git branch -m newname
+
 // Alle letzten Commits der Branches anzeigen lassen:
 git branch -v
 
@@ -368,6 +374,12 @@ git branch --merged
 
 // Alle Branches anzeigen, die noch nicht in den aktuellen Branch gemergt wurden:
 git branch --no-merged
+
+// Tracking branch zu einem Remote-Branch erstellen:
+git checkout -b trackingbranch origin/master
+
+Wenn ich im Master jetzt "git push" oder "git pull" eingebe, weiß Git,
+wohin bzw. von wo ich pullen / pushen möchte. 
 
 REMOTEDATEN MIT MEINEN DATEN MERGEN:
 
