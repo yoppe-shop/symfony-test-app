@@ -66,7 +66,10 @@ In den gewünschten Ordner, in dem ich das Repository haben möchte, auf dem Rep
 git init --bare --shared
 
 PROJEKTKOPIE (z.B. auf zusätzlichem Rechner) ANLEGEN:
-git clone
+git clone <source> <destination>
+Wird <destination> nicht angegeben, wird ein Verzeichnis mit dem Verzeichnisname von <source> angelegt 
+und dort das gesamte Projekt, soweit es von Git erfasst ist, mit dem Ordner .git und den Dateien hinein 
+geclont.
 
 PROJEKTKOPIE AUF AKTUELLEN STAND BRINGEN:
 git pull
@@ -266,39 +269,48 @@ ANDERE VERSION EINSCHALTEN (Dateien auf ihren Stand bringen):
 
 git checkout <Beginn der Checksum oder Branchname>
 
+GIT BRANCHING:
+
 Mit neuem Branch z.B. Hotfix erstellen:
 
-// Kurzform von "git branch hotfix" und "git checkout hotfix" eingeben, um neuen Branch herzustellen und reinzugehen:
+// Kurzform von "git branch hotfix" und "git checkout hotfix" eingeben, um neuen Branch herzustellen 
+und reinzugehen:
 git checkout -b hotfix
+
 //Dateien bearbeiten und commiten:
 git commit -a -m 'added a new Datetime-Object'
+
 // Zum Master zurück gehen:
 git checkout master
+
 // Hotfix einbinden:
 git merge hotfix
 
-BRANCH ER�FFNEN:
+Git erstellt automatisch einen Commit, wenn kein Merge-Konflikt vorliegt!!!
 
-git branch testing
+Liegt hingegen ein Merge-Konflikt vor, muss man in die Datei gehen, die Stellen mit <<<<<< HEAD ====== >>>>>
+bearbeiten und dann den Commit selbst en.
 
-BRANCH LOESCHEN:
+Anschließend den Branch löschen:
 
-git branch -d testing
+git branch -d hotfix bzw. git branch -D hotfix (nach Sicherheitsnachfrage)
+
 
 BRANCH POINTERS ANSEHEN:
 
 git log --oneline --decorate
 
+// Branch im Remote speichern:
+git push origin <branchname>
 
-ZUM ANDEREN BRANCH WECHSELN:
+// Branch im Remote löschen:
+git push origin --delete <branchname>
 
-git checkout testing
 
-
-DATEI L�SCHEN:
+DATEI LÖSCHEN:
 
 git rm file1.txt
-git commit �m �remove file1.txt�
+git commit rm --remove file1.txt�
 
 Datei nur aus dem Repository l�schen:
 git rm �cached file1.txt
@@ -353,4 +365,7 @@ REPOSITORY AUF NAS-SERVER SCHAFFEN:
 net use Z: \\OSC-TEAM\OSC-Drive
 
 (Z: Selbstgew�hlter Laufwerksbuchstabe)
+
+BRANCHING:
+
 
