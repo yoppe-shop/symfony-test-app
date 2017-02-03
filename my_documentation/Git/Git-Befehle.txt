@@ -302,11 +302,6 @@ git push origin <branchname>
 git push origin --delete <branchname>
 
 
-BRANCH POINTERS ANSEHEN:
-
-git log --oneline --decorate
-
-
 DATEI LÖSCHEN:
 
 git rm file1.txt
@@ -331,6 +326,8 @@ git log 2 years 1 day 3 minutes ago
 git log author
 git log committer
 
+Branch pointers ansehen:
+git log --oneline --decorate
 
 UNTERSCHIEDE ANSEHEN:
 
