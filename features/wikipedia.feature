@@ -4,8 +4,9 @@ Feature: search
   As a website user
   I need to be able to search for a word
   
-  Scenario: Searching for a page that does exist
-    Gegeben seien ich bin auf "https://en.wikipedia.org/wiki/Main_Page"
-    Wenn ich gebe "Behavior Driven Development" in das Feld "search" ein
-    Und ich drücke "searchButton"
-    Dann sollte ich "agile software development" sehen
+  @javascript
+  Scenario: Searching for a page with autocompletion
+    Given I am on "/wiki/Main_Page"
+    When I fill in "search" with "Behavior Driv"
+    Then I should see "Behavior Driven Development"
+

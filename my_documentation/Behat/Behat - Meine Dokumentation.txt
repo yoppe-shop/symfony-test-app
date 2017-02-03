@@ -162,26 +162,6 @@ class FeatureContext extends RawMinkContext
             throw new \Exception('Did not see' . $string);
         }
     }
-
-    /**
-     *
-     *
-     * @When /^I search for "([^"]*)"$/
-     */
-    public function iSearchFor( $key ) {
-        $this->fillField( "s", $key );
-        $this->pressButton( "Search" );
-
-    }
-
-    /**
-     *
-     *
-     * @Given /^I am on blogs page$/
-     */
-    public function iAmOnBlogsPage() {
-        $this->visit( "/blog" );
-    }
 }
 
 Aufruf des Tests:
@@ -192,13 +172,5 @@ Test einzeln aufgerufen:
 vendor/bin/behat [features/wikipedia.feature]
 
 Behat-Version:
-vendor/bin/behat -V
-
-Behat / Mink arbeitet nicht mit CSS-Selektoren, sondern aus Sicht des Endanwenders.
-Man kann allerdings auch etwas schummeln und die Id oder das Name-Attribut 
-ansprechen. Man kann zwar in der Features.context CSS benutzen, sollte das aber
-nicht im Szenario tun. Formulierungen wie "main search button" (im Szenario ohne 
-Anführungszeichen benutzen).
-
-Der Goutte-Treiber: 
+vendor/bin/behat -V 
 

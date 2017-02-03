@@ -10,8 +10,6 @@ class ProductsImportControllerTest extends WebTestCase
     protected $em;
     protected $csv;
 
-    const DIR_SEP = "\\";
-
     protected function setUp()
     {
         self::bootKernel();

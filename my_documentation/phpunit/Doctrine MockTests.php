@@ -83,3 +83,11 @@ class MockTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(2, count($result));
     }
 }
+
+// ->will() kann auch Funktionen zurückgeben, entweder mit Funktionsname oder direkt einer anonymen Funktion:
+
+// ->will($this->returnCallback(array('PersonCollectionTestcase','myCallback')));
+
+->will($this->returnCallback(function(){ 
+ ...
+});

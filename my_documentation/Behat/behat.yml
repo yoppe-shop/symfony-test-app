@@ -1,0 +1,23 @@
+#behat.yml
+default:
+  #autoload:
+    #'' : %paths.base%/features/bootstrap
+  extensions:
+    Behat\MinkExtension:
+      goutte:
+        guzzle_parameters:
+          # Keine HTTPS-Zertifikat-Prüfung durchführen (denn die würde eine Fehlermeldung erzeugen):
+          verify: false
+      selenium2:
+        wd_host: 127.0.0.1:4444/wd/hub
+        capabilities: { "browserName": "chrome", "browser": "chrome", "version":  "55", 'chrome': {'switches':['--no-sandbox']}}
+      javascript_session: selenium2
+      #the base url
+      base_url: https://en.wikipedia.org
+  suites:
+    default:
+      paths: [ %paths.base%/features ]
+      bootstrap: [ $paths.features/bootstrap ]
+      contexts:
+        - FeatureContext
+        - Behat\MinkExtension\Context\MinkContext

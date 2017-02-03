@@ -25,7 +25,7 @@ class ProductsImportController extends Controller
      */
     public function indexAction()
     {
-        return $this->render('ShopBundle:Default:index.html.twig');
+        return $this->render('ShopBundle:ProductsImport:csv_import.html.twig');
     }
 
     /**

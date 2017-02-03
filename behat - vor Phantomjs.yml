@@ -1,0 +1,31 @@
+#behat.yml
+default:
+  #autoload:
+    #'' : %paths.base%/features/bootstrap
+  extensions:
+    Behat\MinkExtension:
+      goutte:
+        guzzle_parameters:
+          verify: false
+      selenium2:
+        #wd_host: 127.0.0.1:4444/wd/hub
+        capabilities: ~
+      javascript_session: selenium2
+      #the base url
+      base_url: https://en.wikipedia.org
+  suites:
+    default:
+      paths: [ %paths.base%/features ]
+      bootstrap: [ $paths.features/bootstrap ]
+      contexts:
+        - FeatureContext
+        - Behat\MinkExtension\Context\MinkContext
+phantomjs:
+  context:
+      class:  'FeatureContext'
+  extensions:
+    Behat\MinkExtension\Extension:
+      base_url: 'http://saucelabs.com/'
+      goutte: ~
+      selenium2:
+        wd_host: "http://localhost:8643/wd/hub"
