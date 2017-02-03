@@ -289,22 +289,22 @@ git merge hotfix
 Git erstellt automatisch einen Commit, wenn kein Merge-Konflikt vorliegt!!!
 
 Liegt hingegen ein Merge-Konflikt vor, muss man in die Datei gehen, die Stellen mit <<<<<< HEAD ====== >>>>>
-bearbeiten und dann den Commit selbst en.
+bearbeiten und dann den Commit selbst machen.
 
 Anschließend den Branch löschen:
 
 git branch -d hotfix bzw. git branch -D hotfix (nach Sicherheitsnachfrage)
-
-
-BRANCH POINTERS ANSEHEN:
-
-git log --oneline --decorate
 
 // Branch im Remote speichern:
 git push origin <branchname>
 
 // Branch im Remote löschen:
 git push origin --delete <branchname>
+
+
+BRANCH POINTERS ANSEHEN:
+
+git log --oneline --decorate
 
 
 DATEI LÖSCHEN:
