@@ -74,8 +74,6 @@ geclont.
 PROJEKTKOPIE AUF AKTUELLEN STAND BRINGEN:
 git pull
 
-
-
 GIT PUSH SCHLÄGT FEHL WEGEN KONFLIKT:
 
 Git pull eingeben, so dass Git
@@ -103,6 +101,12 @@ GEÄNDERTES PROJEKT MIT REMOTE-DATEIEN ÜBERSCHREIBEN (Harte Version, unerwünsc
 git fetch --all
 2. Schritt: Eigene Änderungen im Master mit den Remote-Daten überschreiben:
 git reset --hard <remote short name>/master (Eigene Änderungen im Master überschreiben)
+
+
+REMOTE IN MEIN PROJEKT CLONEN:
+<destination> muss ein leerer Ordner sein:
+git clone <source> <destination>
+
 
 ERSTES PUSH AUF REMOTE REPOSITORY:
 
@@ -155,9 +159,55 @@ BEARBEITUNGSSTAND COMMITTEN:
 
 git commit -m "Versionsbeschreibung"
 
-COMMIT-HISTORIE ANSEHEN:
+STATUS ANSEHEN:
+
+git status
+
+
+HISTORIE ANSEHEN:
 
 git log
+git log --stat
+git log --since=2.weeks
+git log 2008-01-15
+git log 2 years 1 day 3 minutes ago
+git log author
+git log committer
+
+Branch pointers ansehen:
+git log --oneline --decorate
+
+Historie im Remote ansehen:
+git log origin/master
+
+
+UNTERSCHIEDE ANSEHEN:
+
+git diff 
+git diff --staged / --cached (beide Optionen machen das Gleiche)
+git diff HEAD
+
+Änderungen SEIT letztem Commit rückgängig machen, aber intern nicht löschen:
+git stash
+
+Rückgängig machen des Stashs, Wiederherstellen:
+git stash pop
+
+Löschen der Änderungen seit letztem Commit:
+git stash drop
+
+
+DATEIEN IGNORIEREN:
+
+In Datei .gitignore die Dateien oder regul�ren Ausdr�cke zu Dateien auflisten
+
+
+REPOSITORY AUF NAS-SERVER SCHAFFEN:
+
+net use Z: \\OSC-TEAM\OSC-Drive
+
+(Z: Selbstgew�hlter Laufwerksbuchstabe)
+
 
 DATEIENSTAND ZURÜCKSETZEN:
 
@@ -216,6 +266,10 @@ git diff "@{gestern}"
 Oder zwischen irgendeiner Version und der vorletzten:
 
 git diff 1b6d "master~2"
+
+Diff vom anderen Branch, z.B. im Remote, ausgeben:
+
+git diff origin/master
 
 Versuche auch:
 
@@ -293,13 +347,34 @@ bearbeiten und dann den Commit selbst machen.
 
 Anschließend den Branch löschen:
 
-git branch -d hotfix bzw. git branch -D hotfix (nach Sicherheitsnachfrage)
+git branch -d hotfix
+
+// Wenn noch nicht gemergte Daten im zu löschenden Branch sind, kann man ihn 
+mit Datenverlust ZWANGSweise löschen:
+
+git branch -D hotfix
 
 // Branch im Remote speichern:
 git push origin <branchname>
 
 // Branch im Remote löschen:
 git push origin --delete <branchname>
+
+// Alle letzten Commits der Branches anzeigen lassen:
+git branch -v
+
+// Alle Branches anzeigen, die in den aktuellen Branch gemergt sind:
+git branch --merged
+
+// Alle Branches anzeigen, die noch nicht in den aktuellen Branch gemergt wurden:
+git branch --no-merged
+
+REMOTEDATEN MIT MEINEN DATEN MERGEN:
+
+git merge <remote shortname>/master
+
+Ich kann aber mich auch an ein Repository "dranhängen" und die Daten mit "pull" bekommen, 
+wodurch meine Daten automatisch aktualisiert werden.
 
 
 DATEI LÖSCHEN:
@@ -308,61 +383,11 @@ git rm file1.txt
 git commit rm --remove file1.txt�
 
 Datei nur aus dem Repository l�schen:
-git rm �cached file1.txt
+git rm --cached file1.txt
 
 
-STATUS ANSEHEN:
-
-git status
 
 
-HISTORIE ANSEHEN:
 
-git log
-git log --stat
-git log --since=2.weeks
-git log 2008-01-15
-git log 2 years 1 day 3 minutes ago
-git log author
-git log committer
-
-Branch pointers ansehen:
-git log --oneline --decorate
-
-UNTERSCHIEDE ANSEHEN:
-
-git diff 
-git diff --staged / --cached (beide Optionen machen das Gleiche)
-git diff HEAD
-
-Änderungen SEIT letztem Commit rückgängig machen, aber intern nicht löschen:
-git stash
-
-Rückgängig machen des Stashs, Wiederherstellen:
-git stash pop
-
-Löschen der Änderungen seit letztem Commit:
-git stash drop
-
-
-DATEIEN IGNORIEREN:
-
-In Datei .gitignore die Dateien oder regul�ren Ausdr�cke zu Dateien auflisten
-
-
-REMOTEDATEN MIT MEINEN DATEN MERGEN:
-
-git merge <remote shortname>/master
-
-Ich kann aber mich auch an ein Repository "dranh�ngen" und die Daten mit "pull" bekommen, wodurch meine Daten automatisch aktualisiert werden.
-
-
-REPOSITORY AUF NAS-SERVER SCHAFFEN:
-
-net use Z: \\OSC-TEAM\OSC-Drive
-
-(Z: Selbstgew�hlter Laufwerksbuchstabe)
-
-BRANCHING:
 
 
