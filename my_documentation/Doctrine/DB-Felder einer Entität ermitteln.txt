@@ -1,0 +1,9 @@
+Attribute einer Entity ausgeben:
+
+        $productsFields = $em->getClassMetadata('ShopBundle:Product')->getFieldNames();
+        $productsDescriptionFields = $em->getClassMetadata('ShopBundle:ProductsDescription')->getFieldNames();
+
+DB-Felder einer Entität ausgeben:
+
+        $productsFields = $em->getClassMetadata('ShopBundle:Product')->getColumnNames();
+        $productsDescriptionFields = $em->getClassMetadata('ShopBundle:ProductsDescription')->getColumnNames();

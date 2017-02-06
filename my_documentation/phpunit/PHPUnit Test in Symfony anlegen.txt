@@ -20,7 +20,29 @@ mit $result->getContent() ermitteln.
 7. Die Methode "protected function setUp()" wird, falls vorhanden, vor den Tests aufgerufen und kann 
 eine Testumgebung herstellen.
 
-AUFRUF:
+8. Es werden alle Methoden aufgerufen, die mit "test" im Methodennamen beginnen. Alle anderen Methoden 
+sind möglich, um sie von "test"-Methoden aus aufzurufen. 
+
+9. Private Funktionen im zu testenden Controller können aufgerufen werden, indem man im Test-Controller 
+folgende Funktion einfügt:
+
+    protected static function getMethod($className, $methodName)
+    {
+        $class = new \ReflectionClass($className);
+        $method = $class->getMethod($methodName);
+        $method->setAccessible(true);
+        return $method;
+    }
+
+Aufgerufen wird die Funktion des Controllers folgendermaßen:
+
+        $initializeCsvFile = self::getMethod('ShopBundle\\Controller\\ProductsImportController', 'initializeCsvFile');
+        $productsImport = new ProductsImportController();
+        $initializeCsvFile->invokeArgs($productsImport, [&$this->csv]);
+
+---------------------------------------------------------------------------------------------------------------
+
+AUFRUF VON PHPUNIT AUS DER KONSOLE:
 
  Alle Tests der Applikation:
  phpunit

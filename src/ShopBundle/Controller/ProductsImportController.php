@@ -25,7 +25,7 @@ class ProductsImportController extends Controller
      */
     public function indexAction()
     {
-        echo "Dir-Separator: " . DIR_SEP . "<br />";
+        //echo "Dir-Separator: " . DIR_SEP . "<br />";
         return $this->render('ShopBundle:ProductsImport:csv_import.html.twig');
     }
 
@@ -38,7 +38,10 @@ class ProductsImportController extends Controller
         $debug = $this->get('debug');
 
         $em = $this->getDoctrine()->getManager();
- 
+        $this->getCsvProductData($csv);
+
+
+
         return $this->render('ShopBundle:ProductsImport:csv_import.html.twig', [
         ]);
     }
@@ -49,8 +52,7 @@ class ProductsImportController extends Controller
         * Returns Arrays $product, $productsDescription, $productsImage, $attributes
         */
         $this->initializeCsvFile($csv);
-
-        $lines = explode("\n", $csv);
+        $lines = getLines($csv);
         $titleOfIndexes = $this->titleOfIndexes($lines[0]);
 
         unset($lines[0]);
@@ -60,8 +62,18 @@ class ProductsImportController extends Controller
 
     protected function initializeCsvFile(&$csv)
     {
-        //$csv = str_replace("\r", "", $csv);
-        $csv = str_replace("B", "P", $csv);
+        $csv = str_replace("\r", "", $csv);
+    }
+
+    protected function getLines(&$csv)
+    {
+        $lines = explode("\n", $csv);
+        foreach ($lines as $key => $line) {
+            if (empty($line)) {
+                unset($lines[$key]);
+            }
+        }
+        return $lines;
     }
 
     protected function titleOfIndexes($line0)
@@ -69,38 +81,73 @@ class ProductsImportController extends Controller
         return explode($this->csvFieldSep, $line0);
     }
 
-    protected function createDataArrays($em, &$line, $titleOfIndexes)
+    protected function createDataArray($em, &$line, $titleOfIndexes)
     {
         // Produkt- und Produktdescription-Daten nach DB-Feldnamen rauslesen
         // Attribute mit substr rausfiltern
 
         $product = array();
-        $productDescription = array();
+        $productsDescription = array();
         $attributes = array();
         $rawData = explode($this->csvFieldSep, $line);
-
-        $productsFields = $em->getClassMetadata('ShopBundle:Product')->getFieldNames();
-        $productsDescriptionFields = $em->getClassMetadata('ShopBundle:ProductsDescription')->getFieldNames();
-        
-        $em->getClassMetadata('Entities\MyEntity')->getFieldNames();
+        $productsFields = $this->productsFields($em);
+        $productsDescriptionFields = $this->productsDescriptionFields($em);
+    
         foreach($rawData as $index => $value)
         {
-            if(substr($value, 0, 3) == 'a+.') {
-                $attributes[substr($value, 3)] = ['action' => '+', $value];
+            if ($value != '')
+            {
+                echo $titleOfIndexes[$index] . " => " . $value . "\n";
+
+                if(substr($value, 0, 3) == 'a+.') {
+                    $attribute = substr($titleOfIndexes[$index], 3);
+                    $langItem = langItem($attribute);
+                    $attributes[$langItem['item']] = ['action' => '+', 'value' => [$langItem['lang'] => $value]];
+                }
+                elseif(substr($value, 0, 2) == 'a.') {
+                    $attribute = substr($titleOfIndexes[$index], 2);
+                    $langItem = langItem($attribute);
+                    $attributes[$langItem['item']] = ['action' => '+', 'value' => [$langItem['lang'] => $value]];
+                }
+                elseif(substr($value, 0, 3) == 'a-.') {
+                    $attribute = substr($titleOfIndexes[$index], 3);
+                    $langItem = langItem($attribute);
+                    $attributes[$langItem['item']] = ['action' => '-', 'value' => [$langItem['lang'] => $value]];              
+                }
+                elseif(in_array($titleOfIndexes[$index], $productsFields)) {
+                    $product[$titleOfIndexes[$index]] = $value;
+                }
+                elseif(in_array($titleOfIndexes[$index], $productsDescriptionFields)) {
+                    $langItem = langItem($titleOfIndexes[$index]);
+                    $productsDescription[$langItem['item']] = ['value' => [$langItem['lang'] => $value]];
+                }
             }
-            elseif(substr($value, 0, 2) == 'a.') {
-                $attributes[substr($value, 2)] = ['action' => '', $value];
-            }
-            elseif(substr($value, 0, 3) == 'a-.') {
-                $attributes[substr($value, 3)] = ['action' => '-', $value];                
-            }
-            elseif(in_array($titleOfIndexes[$index], $productsFields)) {
-                $product[$titleOfIndexes[$index]] = $value;
-            }
-            elseif(in_array($titleOfIndexes[$index], $productsDescriptionFields)) {
-                $productsDescription[$titleOfIndexes[$index]] = $value;
-            }
-            return ['attributes', 'product', 'productDescription'];
         }
+        return ['product' => $product, 'productDescription' => $productsDescription, 'attributes' => $attributes];
+    }
+
+    protected function productsFields($em)
+    {
+        $productsFields = $em->getClassMetadata('ShopBundle:Product')->getColumnNames();
+
+        return array_map(function($el) {
+            return str_replace('products_', '', $el);
+        }, $productsFields);
+    }
+
+    protected function productsDescriptionFields($em)
+    {
+        $productsDescriptionFields = $em->getClassMetadata('ShopBundle:ProductsDescription')->getColumnNames();
+        return array_map(function($el) {
+            return str_replace('products_', '', $el);
+        }, $productsDescriptionFields);
+    }
+
+    protected function langItem($key)
+    {
+        $pos = strpos($key, '.');
+        return $pos !== false ? 
+            [ 'lang' => substr($key, 0, $pos), 'item' => substr($key, $pos + 1)] : 
+            [ 'lang' => 'de', 'item' => $key];
     }
 }
