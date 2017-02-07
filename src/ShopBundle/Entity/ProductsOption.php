@@ -152,7 +152,7 @@ class ProductsOption
         return $this->productsAttribute;
     }
 
-    public function setProductsAttribute(ProductsAttribute $productsAttribute)
+    public function setProductsAttribute($productsAttribute)
     {
         $this->productsAttribute = $productsAttribute;
 

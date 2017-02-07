@@ -59,7 +59,7 @@ class ProductsImportControllerTest extends WebTestCase
     {
         $method = self::getMethod('ShopBundle\\Controller\\ProductsImportController', 'titleOfIndexes');
         $titleOfIndexes = $method->invokeArgs($this->productsImportController, [$line0]);
-        $this->assertCount(20, $titleOfIndexes);
+        $this->assertCount(22, $titleOfIndexes);
         return $titleOfIndexes;
     }
 
@@ -67,15 +67,46 @@ class ProductsImportControllerTest extends WebTestCase
     {
         $method = self::getMethod('ShopBundle\\Controller\\ProductsImportController', 'createDataArray');
         $data = $method->invokeArgs($this->productsImportController, [$this->em, &$line, $titleOfIndexes]);
-print_r($data);
         $this->assertArrayHasKey('attributes', $data);
         $this->assertArrayHasKey('product', $data);
-        $this->assertArrayHasKey('productDescription', $data);
+        $this->assertArrayHasKey('productsDescription', $data);
         $this->assertArrayHasKey('model', $data['product']);
         if (isset($data['product']['model']) && $data['product']['model'] == '99999')
         {
-            $this->assertCount(8, $data['product']);
-            $this->assertCount(3, $data['productDescription']);
+            $this->assertCount(4, $data['product']);
+            $this->assertCount(3, $data['productsDescription']);
+            $this->assertCount(8, $data['attributes']);
+            $this->assertEquals($data['product'], [
+                    'model' => '99999',
+                    'ean' => '43123456789',
+                    'price' => '19,99',
+                    'status' => '1',
+            ]);
+            $this->assertEquals($data['productsDescription'], [
+                    'name' => [
+                        'de' => 'Bürotisch'
+                    ],
+                    'description' => [
+                        'de' => 'Dieser Bürotisch bietet Ihnen viel Platz für alle Ihre Büroutensilien.'
+                    ],
+                    'short_description' => [
+                        'de' => 'Bürotisch mit viel Platz'
+                    ]
+            ]);
+            $this->assertEquals($data['attributes']['farbe'],  [
+                'de' => [
+                    'action' => '',
+                    'value' => 'rot',
+                ],
+                'en' => [
+                    'action' => '',
+                    'value' => 'red',
+                ],
+                'fr' => [
+                    'action' => '',
+                    'value' => 'rouge',
+                ],
+            ]);
         }
         return $data;        
     }

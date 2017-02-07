@@ -14,6 +14,7 @@ use ShopBundle\Entity\ProductsOptionsValue;
 class ProductsImportController extends Controller
 {
     protected $csvFieldSep;
+    protected $errors = array();
 
     public function __construct()
     {
@@ -37,9 +38,17 @@ class ProductsImportController extends Controller
         $utils = $this->get('utils');
         $debug = $this->get('debug');
 
-        $em = $this->getDoctrine()->getManager();
-        $this->getCsvProductData($csv);
-
+        $em = $this->getDoctrine()->getManager('mysql');
+        $this->productsOptions($em);
+        // $this->getCsvProductData($csv);
+$products = $em->createQuery('
+    SELECT p, pa, po 
+    FROM ShopBundle:Product p 
+    LEFT JOIN p.productsAttributes pa 
+    LEFT JOIN pa.productsOptions po 
+')
+->getResult();
+//$debug->pr($products,6);
 
 
         return $this->render('ShopBundle:ProductsImport:csv_import.html.twig', [
@@ -92,38 +101,29 @@ class ProductsImportController extends Controller
         $rawData = explode($this->csvFieldSep, $line);
         $productsFields = $this->productsFields($em);
         $productsDescriptionFields = $this->productsDescriptionFields($em);
-    
+        $productsOptions = $this->productsOptions($em);
+
         foreach($rawData as $index => $value)
         {
-            if ($value != '')
-            {
-                echo $titleOfIndexes[$index] . " => " . $value . "\n";
-
-                if(substr($value, 0, 3) == 'a+.') {
-                    $attribute = substr($titleOfIndexes[$index], 3);
-                    $langItem = langItem($attribute);
-                    $attributes[$langItem['item']] = ['action' => '+', 'value' => [$langItem['lang'] => $value]];
+            if ($value != '') {
+                if(substr($titleOfIndexes[$index], 0, 3) == 'a+.') {
+                    $this->setAttributesField($attributes, $titleOfIndexes[$index], '+', $value);
                 }
-                elseif(substr($value, 0, 2) == 'a.') {
-                    $attribute = substr($titleOfIndexes[$index], 2);
-                    $langItem = langItem($attribute);
-                    $attributes[$langItem['item']] = ['action' => '+', 'value' => [$langItem['lang'] => $value]];
+                elseif(substr($titleOfIndexes[$index], 0, 2) == 'a.') {
+                    $this->setAttributesField($attributes, $titleOfIndexes[$index], '', $value);
                 }
-                elseif(substr($value, 0, 3) == 'a-.') {
-                    $attribute = substr($titleOfIndexes[$index], 3);
-                    $langItem = langItem($attribute);
-                    $attributes[$langItem['item']] = ['action' => '-', 'value' => [$langItem['lang'] => $value]];              
+                elseif(substr($titleOfIndexes[$index], 0, 3) == 'a-.') {
+                    $this->setAttributesField($attributes, $attributesFields, $titleOfIndexes[$index], '-', $value);           
                 }
-                elseif(in_array($titleOfIndexes[$index], $productsFields)) {
-                    $product[$titleOfIndexes[$index]] = $value;
+                elseif(strpos($titleOfIndexes[$index], '.') !== false) {
+                    $this->setProductsDescriptionField($productsDescription, $productsDescriptionFields, $titleOfIndexes[$index], $value);
                 }
-                elseif(in_array($titleOfIndexes[$index], $productsDescriptionFields)) {
-                    $langItem = langItem($titleOfIndexes[$index]);
-                    $productsDescription[$langItem['item']] = ['value' => [$langItem['lang'] => $value]];
+                else {
+                    $this->setProductsField($product, $productsFields, $titleOfIndexes[$index], $value);
                 }
             }
         }
-        return ['product' => $product, 'productDescription' => $productsDescription, 'attributes' => $attributes];
+        return ['product' => $product, 'productsDescription' => $productsDescription, 'attributes' => $attributes];
     }
 
     protected function productsFields($em)
@@ -143,11 +143,52 @@ class ProductsImportController extends Controller
         }, $productsDescriptionFields);
     }
 
+    protected function productsOptions($em) {
+        $productsOptions = $em
+            ->createQuery('
+                SELECT po
+                FROM ShopBundle:ProductsOption po 
+                WHERE po.languageId = 2
+                ORDER BY po.productsOptionsId ASC
+            ')
+            ->getResult();
+            $debug = $this->get('debug');
+            $debug->pr($productsOptions); exit;
+        return $productsOptions;
+    }
+
+    protected function setProductsField(&$product, &$productsFields, $key, $value) {
+        if (in_array($key, $productsFields)) {
+            $product[$key] = $value;
+        }
+        else {
+            $this->errors[]= 'Products: \'' . $key . '\' ist als Schlüssel nicht zugelassen.';
+        }
+    }
+
+    protected function setProductsDescriptionField(&$productsDescription, &$productsDescriptionFields, $key, $value)
+    {
+        $langItem = $this->langItem($key);
+        if (in_array($langItem['item'], $productsDescriptionFields)) {
+            $productsDescription[$langItem['item']][$langItem['lang']] = $value;
+        }
+        else {
+            $this->errors[]= 'ProductsDescription: \'' . $key . '\' ist als Schlüssel nicht zugelassen.';
+        }
+    }
+
+    protected function setAttributesField(&$attributes, $key, $action, $value)
+    {
+        $attribute = substr($key, 2 + strlen($action));
+        $langItem = $this->langItem($attribute);
+        $attributes[$langItem['item']][$langItem['lang']] = ['action' => $action, 'value' => $value];
+    }
+
     protected function langItem($key)
     {
         $pos = strpos($key, '.');
         return $pos !== false ? 
-            [ 'lang' => substr($key, 0, $pos), 'item' => substr($key, $pos + 1)] : 
+            [ 'lang' => substr($key, $pos + 1), 'item' => substr($key, 0, $pos)] : 
             [ 'lang' => 'de', 'item' => $key];
     }
 }
