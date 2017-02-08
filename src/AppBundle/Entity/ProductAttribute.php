@@ -34,11 +34,6 @@ class ProductAttribute
     protected $productOptionValueId = 0;
 
     /**
-    * @ORM\Column(name="language_id", type="integer")
-    */
-    protected $languageId;
-
-    /**
      * @ORM\ManyToOne(targetEntity="Product", inversedBy="productAttributes", cascade="persist")
      */
     protected $product;
@@ -81,18 +76,6 @@ class ProductAttribute
     public function setProductOptionValueId($productOptionValueId)
     {
         $this->productOptionValueId = $productOptionValueId;
-    }
-
-    public function getLanguageId()
-    {
-        return $this->languageId;
-    }
-
-    public function setLanguageId($languageId)
-    {
-        $this->languageId = $languageId;
-
-        return $this;
     }
 
     public function getProduct()

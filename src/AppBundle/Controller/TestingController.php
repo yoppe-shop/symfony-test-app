@@ -29,7 +29,7 @@ class TestingController extends Controller
         
         return new Response (
             ''
-        );       
+        );
     }
 
     /**
@@ -41,13 +41,13 @@ class TestingController extends Controller
         $debug = $this->get('debug');
 
         $em = $this->getDoctrine()->getManager();
-        $products = $this->products($em);
+        $productOptions = $this->productOptions($em);
 
         $debug->pr($productOptions, 4);
         
         return new Response (
             ''
-        );       
+        );
     }
 
     /**

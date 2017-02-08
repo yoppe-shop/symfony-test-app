@@ -7,22 +7,23 @@ use Doctrine\ORM\Mapping\UniqueConstraint;
 
 /**
 * @ORM\Entity
-* @ORM\Table(name="product_options", uniqueConstraints={@UniqueConstraint(name="product_options_pkey", columns={"id", "language_id"})})
+* @ORM\Table(name="product_options")
 */
 
 class ProductOption
 {
     /**
     * @ORM\Id
-    * @ORM\GeneratedValue(strategy="AUTO")
+    * ORM\GeneratedValue(strategy="AUTO")
     * @ORM\Column(type="integer")
     */
     protected $id = 0;
 
     /**
+    * @ORM\Id
     * @ORM\Column(name="language_id", type="integer")
     */
-    protected $languageId = 2;
+    protected $languageId;
 
     /**
     * @ORM\Column(name="name", type="string", length=255)
@@ -33,8 +34,7 @@ class ProductOption
     * @ORM\ManyToMany(targetEntity="Product")
     * @ORM\JoinTable(name="product_attributes",
     * joinColumns={
-    *     @ORM\JoinColumn(name="product_option_id", referencedColumnName="id"),
-    *     @ORM\JoinColumn(name="language_id", referencedColumnName="language_id")
+    *     @ORM\JoinColumn(name="product_option_id", referencedColumnName="id")
     * },
     * inverseJoinColumns={
     *     @ORM\JoinColumn(name="product_id", referencedColumnName="id")

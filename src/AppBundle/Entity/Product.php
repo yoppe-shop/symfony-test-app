@@ -49,9 +49,8 @@ class Product
     *     @ORM\JoinColumn(name="product_id", referencedColumnName="id")
     * },
     * inverseJoinColumns={
-    *     @ORM\JoinColumn(name="product_option_id", referencedColumnName="id"),
-    *     @ORM\JoinColumn(name="language_id", referencedColumnName="language_id")
-    * }
+    *     @ORM\JoinColumn(name="product_option_id", referencedColumnName="id")
+     * }
     * )
     */
     protected $productOptions;
