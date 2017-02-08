@@ -8,6 +8,6 @@ class ShopBundle extends Bundle
 {
     public function __construct()
     {
-        define("DIR_SEP", "\\");
+        if (!defined("DIR_SEP")) define("DIR_SEP", "\\");
     }
 }

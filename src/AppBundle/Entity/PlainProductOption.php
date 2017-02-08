@@ -7,10 +7,10 @@ use Doctrine\ORM\Mapping\UniqueConstraint;
 
 /**
 * @ORM\Entity
-* @ORM\Table(name="product_option_values", uniqueConstraints={@UniqueConstraint(name="product_option_values_pkey", columns={"id", "language_id"})})
+* @ORM\Table(name="product_options", uniqueConstraints={@UniqueConstraint(name="product_options_pkey", columns={"id", "language_id"})})
 */
 
-class ProductOptionValue
+class PlainProductOption
 {
     /**
     * @ORM\Id
@@ -59,5 +59,7 @@ class ProductOptionValue
     public function setName($name)
     {
         $this->name = $name;
+
+        return $this;
     }
 }

@@ -983,17 +983,17 @@ class Product
         return $this->productsAttributes;
     }
 
-    public function hasProductsAttribute(ProductAttribute $productsAttribute)
+    public function hasProductsAttribute(ProductsAttribute $productsAttribute)
     {
         return $this->productsAttributes->contains($productAttribute);
     }
 
-    public function addProductsAttribute(ProductAttribute $productsAttribute)
+    public function addProductsAttribute(ProductsAttribute $productsAttribute)
     {
         $this->productsAttributes->add($productsAttribute);
     }
 
-    public function removeProductsAttribute(ProductAttribute $productsAttribute)
+    public function removeProductsAttribute(ProductsAttribute $productsAttribute)
     {
         $this->productsAttributes->removeElement($productsAttribute);
     }

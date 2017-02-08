@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 * @ORM\Table(name="product_attributes")
 */
 
-class ProductAttribute
+class PlainProductAttribute
 {
     /**
     * @ORM\Id
@@ -32,16 +32,6 @@ class ProductAttribute
     * @ORM\Column(name="product_option_value_id", type="integer")
     */
     protected $productOptionValueId = 0;
-
-    /**
-    * @ORM\Column(name="language_id", type="integer")
-    */
-    protected $languageId;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="Product", inversedBy="productAttributes", cascade="persist")
-     */
-    protected $product;
 
     public function __toString()
     {
@@ -81,27 +71,5 @@ class ProductAttribute
     public function setProductOptionValueId($productOptionValueId)
     {
         $this->productOptionValueId = $productOptionValueId;
-    }
-
-    public function getLanguageId()
-    {
-        return $this->languageId;
-    }
-
-    public function setLanguageId($languageId)
-    {
-        $this->languageId = $languageId;
-
-        return $this;
-    }
-
-    public function getProduct()
-    {
-        return $this->product;
-    }
-
-    public function setProduct(Product $product)
-    {
-        $this->product = $product;
     }
 }

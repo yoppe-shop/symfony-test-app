@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping\UniqueConstraint;
 * @ORM\Table(name="product_option_values", uniqueConstraints={@UniqueConstraint(name="product_option_values_pkey", columns={"id", "language_id"})})
 */
 
-class ProductOptionValue
+class PlainProductOptionValue
 {
     /**
     * @ORM\Id

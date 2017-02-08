@@ -1,0 +1,4 @@
+Primary Key ändern, z.B. von einer Spalte auf einen kombinierten Schlüssel:
+
+ALTER TABLE product_options DROP CONSTRAINT product_options_pkey;
+ALTER TABLE product_options ADD PRIMARY KEY (id, language_id);

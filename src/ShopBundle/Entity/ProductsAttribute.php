@@ -115,21 +115,22 @@ class ProductsAttribute
     private $attributesVpeValue;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Product", inversedBy="productsAttributes", cascade="persist")
+     * @ORM\ManyToOne(targetEntity="Product", inversedBy="productsAttributes")
      * @ORM\JoinColumn(name="products_id", referencedColumnName="products_id")
      */
     private $product;
 
     /**
     * @ORM\OneToMany(targetEntity="ProductsOption", mappedBy="productsAttribute")
+    * @ORM\JoinColumn(name="options_id", referencedColumnName="products_options_id")
     */
     private $productsOptions;
 
     /**
     * @ORM\OneToMany(targetEntity="ProductsOptionsValue", mappedBy="productsAttribute")
+    * @ORM\JoinColumn(name="options_id", referencedColumnName="products_options_id")
     */
     private $productsOptionsValues;
-
 
     public function __construct()
     {
@@ -503,7 +504,7 @@ class ProductsAttribute
 
     public function hasProductsOptionsValue(ProductsOptionsValue $productsOptionsValue)
     {
-        return $this->productsOptionsValues->contains($productOptionsValue);
+        return $this->productsOptionsValues->contains($productsOptionsValue);
     }
 
     public function addProductsOptionsValue(ProductsOptionsValue $productsOptionsValue)

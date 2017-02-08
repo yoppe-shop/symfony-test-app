@@ -1,0 +1,8 @@
+Löscht alle zum Objekt gehörigen Assoziationen von Doctrine aus:
+
+cascade={"remove"}
+
+Fügt add on delete zum Fremdschlüssel in die DB ein, so dass die 
+Datenbank selbst Assoziationen mitlöscht:
+
+@ORM\JoinColumn(name="father_id", referencedColumnName="id", onDelete="CASCADE")
