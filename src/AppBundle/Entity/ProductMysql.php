@@ -12,7 +12,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  * @ORM\Table(name="products", indexes={@ORM\Index(name="idx_products_date_added", columns={"products_date_added"}), @ORM\Index(name="idx_products_model", columns={"products_model"}), @ORM\Index(name="idx_products_status", columns={"products_status"})})
  * @ORM\Entity
  */
-class Product
+class ProductMySql
 {
     /**
      * @var integer
@@ -234,7 +234,7 @@ class Product
     private $productsStartpageSort = '0';
 
     /**
-    * @ORM\OneToMany(targetEntity="ProductsAttribute", mappedBy="product", cascade="persist")
+    * @ORM\OneToMany(targetEntity="ProductsAttribute", mappedBy="productMySql", cascade="persist")
     */
     # private $productsAttributes;
 

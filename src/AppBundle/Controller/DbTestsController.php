@@ -19,10 +19,22 @@ class DbTestsController extends Controller
         $utils = $this->get('utils');
         $debug = $this->get('debug');
 
-        $products = $this->getProducts($this->getDoctrine()->getManager());
+        $em = $this->getDoctrine()->getManager();
 
+        $products = $em
+            ->getRepository('AppBundle:Product')
+            ->findAll();
         $debug->pr($products, 4);
-        
+
+        echo "<hr>";
+
+        $emMySql = $this->getDoctrine()->getManager('mysql');
+
+        $productsMySql = $emMySql
+            ->getRepository('AppBundle:ProductMySql')
+            ->findAll();
+        $debug->pr($productsMySql, 4);
+
         return new Response (
             ''
         );       
