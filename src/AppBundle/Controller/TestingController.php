@@ -6,8 +6,11 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Doctrine\Common\Persistence\ObjectManager;
 use AppBundle\Entity\Product;
+use AppBundle\Entity\ProductAttribute;
+use AppBundle\Entity\ProductOption;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use \Doctrine\Common\Util\Debug;
 
 class TestingController extends Controller
 {
@@ -19,7 +22,8 @@ class TestingController extends Controller
         $utils = $this->get('utils');
         $debug = $this->get('debug');
 
-        $products = $this->getProducts($this->getDoctrine()->getManager());
+        $em = $this->getDoctrine()->getManager();
+        $products = $this->products($em);
 
         $debug->pr($products, 4);
         
@@ -28,12 +32,88 @@ class TestingController extends Controller
         );       
     }
 
-    public function getProducts(ObjectManager $em)
+    /**
+     * @Route("/testing/product_options")
+     */
+    public function productOptionsAction()
     {
-        $productsRepository = $em
-            ->getRepository('AppBundle:Product');
-        $products = $productsRepository->findAll();
-        return $products;  
+        $utils = $this->get('utils');
+        $debug = $this->get('debug');
+
+        $em = $this->getDoctrine()->getManager();
+        $products = $this->products($em);
+
+        $debug->pr($productOptions, 4);
+        
+        return new Response (
+            ''
+        );       
+    }
+
+    /**
+     * @Route("/testing/products_joined")
+     */
+    public function productsJoinedAction()
+    {
+        $utils = $this->get('utils');
+        $debug = $this->get('debug');
+
+        $em = $this->getDoctrine()->getManager();
+        $products = $this->productsJoined($em);
+
+        $debug->pr($products, 3);
+        
+        return new Response (
+            ''
+        );       
+    }
+
+    public function products(ObjectManager $em)
+    {
+        return $em
+            ->createQuery('
+                SELECT p, po 
+                FROM AppBundle:Product p 
+                LEFT JOIN p.productOptions po 
+                ORDER BY p.id ASC
+            ')
+            ->getResult();
+    }
+
+    public function productOptions(ObjectManager $em)
+    {
+        return $em
+            ->createQuery('
+                SELECT po 
+                FROM AppBundle:ProductOption po 
+                ORDER BY po.id ASC
+            ')
+            ->getResult();
+    }
+
+    public function productsJoined(ObjectManager $em)
+    {
+        return $em
+            ->createQuery('
+                SELECT p, pa, po, pov 
+                FROM AppBundle:Product p 
+                LEFT JOIN AppBundle:ProductAttribute pa WITH pa.productId = p.id
+                LEFT JOIN AppBundle:ProductOption po WITH po.id=pa.productOptionId 
+                LEFT JOIN AppBundle:ProductOptionValue pov WITH pov.id=pa.productOptionValueId
+                ORDER BY p.id ASC, po.id, pov.id ASC
+            ')
+            ->getResult();
+
+        return $em
+            ->createQuery('
+                SELECT p.id AS Pid, p.model AS Artikelnummer, p.name AS Produktname, po.id AS POID, po.name AS Attributname, pov.id AS POVID, pov.name AS Wert 
+                FROM AppBundle:PlainProduct p 
+                LEFT JOIN AppBundle:PlainProductAttribute pa WITH pa.productId = p.id
+                LEFT JOIN AppBundle:PlainProductOption po WITH po.id=pa.productOptionId 
+                LEFT JOIN AppBundle:PlainProductOptionValue pov WITH pov.id=pa.productOptionValueId
+                ORDER BY p.id ASC, po.id ASC
+            ')
+            ->getResult();
     }
 
     /**

@@ -1,0 +1,72 @@
+ManyToMany über bereits vorhandene Verknüpfungstabelle:
+Entspricht BelongsToMany:
+
+Entity Product:
+===============
+
+    /**
+    * @ORM\ManyToMany(targetEntity="ProductOption")
+    * @ORM\JoinTable(name="product_attributes",
+    * joinColumns={
+    *     @ORM\JoinColumn(name="product_id", referencedColumnName="id")
+    * },
+    * inverseJoinColumns={
+    *     @ORM\JoinColumn(name="product_option_id", referencedColumnName="id"),
+    *     @ORM\JoinColumn(name="language_id", referencedColumnName="language_id")
+    * }
+    * )
+    */
+    protected $productOptions;
+
+
+Abfrage Produkte mit Produktoptionen:
+
+$products = $em
+            ->createQuery('
+                SELECT p, po 
+                FROM AppBundle:Product p 
+                LEFT JOIN p.productOptions po 
+                ORDER BY p.id ASC
+            ')
+            ->getResult();
+
+
+Entity ProductOption:
+=====================
+
+Bei zusammengesetztem Primärschlüssel oben erweitert definieren:
+
+namespace bla bla bla;
+use bla bla bla;
+use Doctrine\ORM\Mapping\UniqueConstraint;
+
+/**
+* @ORM\Entity
+* @ORM\Table(name="product_options", uniqueConstraints={@UniqueConstraint(name="product_options_pkey", columns={"id", "language_id"})})
+*/
+
+Hier regulär weiter in den Attributen:
+
+    /**
+    * @ORM\ManyToMany(targetEntity="Product")
+    * @ORM\JoinTable(name="product_attributes",
+    * joinColumns={
+    *     @ORM\JoinColumn(name="product_option_id", referencedColumnName="id"),
+    *     @ORM\JoinColumn(name="language_id", referencedColumnName="language_id")
+    * },
+    * inverseJoinColumns={
+    *     @ORM\JoinColumn(name="product_id", referencedColumnName="id")
+    * }
+    * )
+    */
+    protected $products;
+
+Abfrage ProduktOptionen mit dazugehörigen Produkten:
+
+$productOptions = $em
+            ->createQuery('
+                SELECT po 
+                FROM AppBundle:ProductOption po 
+                ORDER BY po.id ASC
+            ')
+            ->getResult();

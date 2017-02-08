@@ -11,7 +11,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 * @ORM\Table(name="products")
 */
 
-class Product
+class PlainProduct
 {
     /**
     * @ORM\Id
@@ -37,28 +37,8 @@ class Product
     */
     protected $name = '';
 
-    /**
-    * @ORM\OneToMany(targetEntity="ProductAttribute", mappedBy="product", cascade="persist")
-    */
-    protected $productAttributes;
-
-    /**
-    * @ORM\ManyToMany(targetEntity="ProductOption")
-    * @ORM\JoinTable(name="product_attributes",
-    * joinColumns={
-    *     @ORM\JoinColumn(name="product_id", referencedColumnName="id")
-    * },
-    * inverseJoinColumns={
-    *     @ORM\JoinColumn(name="product_option_id", referencedColumnName="id"),
-    *     @ORM\JoinColumn(name="language_id", referencedColumnName="language_id")
-    * }
-    * )
-    */
-    protected $productOptions;
-
     public function __construct()
     {
-        $this->productOptions = new ArrayCollection();
     }
 
     public function __toString()
@@ -100,30 +80,4 @@ class Product
     {
         $this->created = $created;
     }
-/*
-    public function getProductAttributes()
-    {
-        return $this->productAttributes;
-    }
-
-    public function hasProductAttribute(ProductAttribute $productAttribute)
-    {
-        return $this->productAttributes->contains($productAttribute);
-    }
-
-    public function addProductAttribute(ProductAttribute $productAttribute)
-    {
-        $this->productAttributes->add($productAttribute);
-    }
-
-    public function removeProductAttribute(ProductAttribute $productAttribute)
-    {
-        $this->productAttributes->removeElement($productAttribute);
-    }
-
-    public function clearProductAttributes()
-    {
-        $this->productAttributes->clear();
-    }
-*/
 }
