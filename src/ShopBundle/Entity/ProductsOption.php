@@ -45,18 +45,24 @@ class ProductsOption
     private $productsOptionsSortorder;
 
     /**
-     * @ORM\ManyToOne(targetEntity="ProductsAttribute", inversedBy="productsOptions")
-     * @ORM\JoinColumn(name="products_options_id", referencedColumnName="options_id")
-     */
-    private $productsAttribute;
-
+    * @ORM\ManyToMany(targetEntity="Product")
+    * @ORM\JoinTable(name="products_attributes",
+    * joinColumns={
+    *     @ORM\JoinColumn(name="options_id", referencedColumnName="products_options_id")
+    * },
+    * inverseJoinColumns={
+    *     @ORM\JoinColumn(name="products_id", referencedColumnName="products_id")
+    * }
+    * )
+    */
+    protected $product;
 
     /**
      * Set productsOptionsName
      *
      * @param string $productsOptionsName
      *
-     * @return ProductsOptions
+     * @return ProductsOption
      */
     public function setProductsOptionsName($productsOptionsName)
     {
@@ -80,7 +86,7 @@ class ProductsOption
      *
      * @param integer $productsOptionsSortorder
      *
-     * @return ProductsOptions
+     * @return ProductsOption
      */
     public function setProductsOptionsSortorder($productsOptionsSortorder)
     {
@@ -104,7 +110,7 @@ class ProductsOption
      *
      * @param integer $productsOptionsId
      *
-     * @return ProductsOptions
+     * @return ProductsOption
      */
     public function setProductsOptionsId($productsOptionsId)
     {
@@ -128,7 +134,7 @@ class ProductsOption
      *
      * @param integer $languageId
      *
-     * @return ProductsOptions
+     * @return ProductsOption
      */
     public function setLanguageId($languageId)
     {
@@ -147,14 +153,26 @@ class ProductsOption
         return $this->languageId;
     }
 
-    public function getProductsAttribute()
+    /**
+     * Get product
+     *
+     * @return Product
+     */
+    public function getProduct()
     {
-        return $this->productsAttribute;
+        return $this->product;
     }
 
-    public function setProductsAttribute($productsAttribute)
+    /**
+     * Set product
+     *
+     * @param Product $product
+     *
+     * @return ProductsOption
+     */
+    public function setProduct(Product $product)
     {
-        $this->productsAttribute = $productsAttribute;
+        $this->product = $product;
 
         return $this;
     }

@@ -52,7 +52,7 @@ doctrine:
                 port:     5432
                 dbname:   shop
                 user:     shop
-                password: winter05
+                password: 123456
                 charset:  UTF8
                 server_version: 9.5
             mysql:

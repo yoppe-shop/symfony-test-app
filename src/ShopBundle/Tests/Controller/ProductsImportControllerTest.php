@@ -18,13 +18,35 @@ class ProductsImportControllerTest extends WebTestCase
         $this->em = static::$kernel->getContainer()
             ->get('doctrine')
             ->getManager('mysql');
-        
+
+        $this->debug = static::$kernel->getContainer()->get('debug');
+
         $this->productsImportController = new ProductsImportController();
     }
 
     protected function loadCsv()
     {
         $this->csv = file_get_contents(static::$kernel->getRootDir() . DIR_SEP . ".." . DIR_SEP . "src" . DIR_SEP . "ShopBundle" . DIR_SEP . "Resources" . DIR_SEP . "testFiles" . DIR_SEP . "product_test.csv");
+    }
+
+    public function testEntities()
+    {
+        $products = $this->em 
+            ->createQuery('
+                SELECT p, po 
+                FROM ShopBundle:Product p 
+                LEFT JOIN p.productsOptions po
+                WHERE p.productsModel = \'999999\'
+            ')
+            ->getResult();        
+        $this->assertGreaterThanOrEqual(2, count($products[0]->getProductsOptions()));
+    }
+
+    public function testProductsOptions()
+    {
+        $method = self::getMethod('ShopBundle\\Controller\\ProductsImportController', 'productsOptions');
+        $productsOptions = $method->invokeArgs($this->productsImportController, [$this->em]);
+        $this->assertGreaterThanOrEqual(8, count($productsOptions));
     }
 
     public function testControllerFunctions()

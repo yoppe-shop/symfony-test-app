@@ -99,7 +99,7 @@ class Product
     {
         $this->created = $created;
     }
-/*
+
     public function getProductAttributes()
     {
         return $this->productAttributes;
@@ -124,5 +124,4 @@ class Product
     {
         $this->productAttributes->clear();
     }
-*/
 }

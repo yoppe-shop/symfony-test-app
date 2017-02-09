@@ -152,8 +152,6 @@ $products = $em->createQuery('
                 ORDER BY po.productsOptionsId ASC
             ')
             ->getResult();
-            $debug = $this->get('debug');
-            $debug->pr($productsOptions); exit;
         return $productsOptions;
     }
 

@@ -15,10 +15,10 @@ class DebugController extends Controller
         return $this->render('ServiceBundle:Default:index.html.twig');
     }
     
-    function pr(&$var, $layers = 3)
+    function pr(&$var, $layers = 3, $stripHtml = false)
     {
         echo "<pre>";
-        \Doctrine\Common\Util\Debug::dump($var, $layers, false);
+        \Doctrine\Common\Util\Debug::dump($var, $layers, $stripHtml);
         echo "</pre>";
     }
 }

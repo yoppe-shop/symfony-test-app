@@ -118,24 +118,11 @@ class ProductsAttribute
      * @ORM\ManyToOne(targetEntity="Product", inversedBy="productsAttributes")
      * @ORM\JoinColumn(name="products_id", referencedColumnName="products_id")
      */
-    private $product;
+     private $product;
 
-    /**
-    * @ORM\OneToMany(targetEntity="ProductsOption", mappedBy="productsAttribute")
-    * @ORM\JoinColumn(name="options_id", referencedColumnName="products_options_id")
-    */
-    private $productsOptions;
-
-    /**
-    * @ORM\OneToMany(targetEntity="ProductsOptionsValue", mappedBy="productsAttribute")
-    * @ORM\JoinColumn(name="options_id", referencedColumnName="products_options_id")
-    */
-    private $productsOptionsValues;
-
-    public function __construct()
+    public function __toString()
     {
-        $this->productsOptions = new ArrayCollection();
-        $this->productsOptionsValues = new ArrayCollection();
+        return (string) $this->attributesId;
     }
 
     /**
@@ -470,55 +457,5 @@ class ProductsAttribute
         $this->product = $product;
 
         return $this;
-    }
-
-    public function getProductsOptions()
-    {
-        return $this->productsOptions;
-    }
-
-    public function hasProductsOption(ProductsOption $productsOption)
-    {
-        return $this->productsOptions->contains($productOption);
-    }
-
-    public function addProductsOption(ProductsOption $productsOption)
-    {
-        $this->productsOptions->add($productsOption);
-    }
-
-    public function removeProductsOption(ProductsOption $productsOption)
-    {
-        $this->productsOptions->removeElement($productsOption);
-    }
-
-    public function clearProductsOptions()
-    {
-        $this->productsOptions->clear();
-    }
-
-    public function getProductsOptionsValues()
-    {
-        return $this->productsOptionsValues;
-    }
-
-    public function hasProductsOptionsValue(ProductsOptionsValue $productsOptionsValue)
-    {
-        return $this->productsOptionsValues->contains($productsOptionsValue);
-    }
-
-    public function addProductsOptionsValue(ProductsOptionsValue $productsOptionsValue)
-    {
-        $this->productsOptions->add($productsOptionsValue);
-    }
-
-    public function removeProductsOptionsValue(ProductsOptionsValue $productsOptionsValue)
-    {
-        $this->productsOptionsValues->removeElement($productsOptionsValue);
-    }
-
-    public function clearProductsOptionsValues()
-    {
-        $this->productsOptionsValues->clear();
     }
 }
