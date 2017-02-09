@@ -33,13 +33,34 @@ class ProductsImportControllerTest extends WebTestCase
     {
         $products = $this->em 
             ->createQuery('
-                SELECT p, po 
+                SELECT p, po, pov 
                 FROM ShopBundle:Product p 
                 LEFT JOIN p.productsOptions po
+                LEFT JOIN p.productsOptionsValues pov
                 WHERE p.productsModel = \'999999\'
             ')
-            ->getResult();        
+            ->getResult();
+    
         $this->assertGreaterThanOrEqual(2, count($products[0]->getProductsOptions()));
+        $this->assertGreaterThanOrEqual(4, count($products[0]->getProductsOptionsValues()));
+
+        $poRequired = array_flip(['Farbe', 'Gewicht']);
+        foreach ($products[0]->getProductsOptions() as $po) {
+            if (isset($poRequired[$po->getProductsOptionsName()]))
+            {
+                unset($poRequired[$po->getProductsOptionsName()]);
+            }
+        }
+        $this->assertEmpty($poRequired);
+
+        $povRequired = array_flip(['rot', 'red', '10 kg']);
+        foreach ($products[0]->getProductsOptionsValues() as $pov) {
+            if (isset($povRequired[$pov->getProductsOptionsValuesName()]))
+            {
+                unset($povRequired[$pov->getProductsOptionsValuesName()]);
+            }
+        }
+        $this->assertEmpty($povRequired);
     }
 
     public function testProductsOptions()

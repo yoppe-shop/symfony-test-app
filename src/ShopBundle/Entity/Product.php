@@ -251,6 +251,19 @@ class Product
     */
     protected $productsOptions;
 
+    /**
+    * @ORM\ManyToMany(targetEntity="ProductsOptionsValue")
+    * @ORM\JoinTable(name="products_attributes",
+    * joinColumns={
+    *     @ORM\JoinColumn(name="products_id", referencedColumnName="products_id")
+    * },
+    * inverseJoinColumns={
+    *     @ORM\JoinColumn(name="options_values_id", referencedColumnName="products_options_values_id")
+    * }
+    * )
+    */
+    protected $productsOptionsValues;
+
     public function __construct()
     {
         $this->productsAttributes = new ArrayCollection();
@@ -1019,5 +1032,10 @@ class Product
     public function getProductsOptions()
     {
         return $this->productsOptions;
+    }
+
+    public function getProductsOptionsValues()
+    {
+        return $this->productsOptionsValues;
     }
 }

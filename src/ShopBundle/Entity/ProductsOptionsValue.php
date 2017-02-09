@@ -38,10 +38,17 @@ class ProductsOptionsValue
     private $productsOptionsValuesName = '';
 
     /**
-     * @ORM\ManyToOne(targetEntity="ProductsAttribute", inversedBy="productsOptionsValues")
-     * @ORM\JoinColumn(name="products_options_values_id", referencedColumnName="options_values_id")
-     */
-    private $productsAttribute;
+    * @ORM\ManyToMany(targetEntity="Product")
+    * @ORM\JoinTable(name="products_attributes",
+    * joinColumns={
+    *     @ORM\JoinColumn(name="options_values_id", referencedColumnName="products_options_values_id")
+    * },
+    * inverseJoinColumns={
+    *     @ORM\JoinColumn(name="products_id", referencedColumnName="products_id")
+    * }
+    * )
+    */
+    protected $product;
 
     /**
      * Set productsOptionsValuesName
@@ -115,15 +122,8 @@ class ProductsOptionsValue
         return $this->languageId;
     }
 
-    public function getProductsAttribute()
+    public function getProduct()
     {
-        return $this->productsAttribute;
-    }
-
-    public function setProductsAttribute(ProductsAttribute $productsAttribute)
-    {
-        $this->productsAttribute = $productsAttribute;
-
-        return $this;
+        return $this->product;
     }
 }
