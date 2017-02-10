@@ -40,7 +40,7 @@ class ProductsImportControllerTest extends WebTestCase
                 WHERE p.productsModel = \'999999\'
             ')
             ->getResult();
-    
+
         $this->assertGreaterThanOrEqual(2, count($products[0]->getProductsOptions()));
         $this->assertGreaterThanOrEqual(4, count($products[0]->getProductsOptionsValues()));
 
