@@ -16,3 +16,19 @@ PHPUnit - protected/private Methoden aufrufen [und Argumente per Referenz überg
       $method->setAccessible(true);
       return $method;
   }
+
+
+Attribute:
+
+
+    protected static function getPropertyValue($object, $propertyName)
+    {
+        $reflectionClass = new ReflectionClass(get_class($object));
+        $reflectionProperty = $reflectionClass->getProperty($propertyName);
+        $reflectionProperty->setAccessible(true);
+
+        return $reflectionProperty->getValue($object);
+    }
+
+
+Aufruf z.B. mit self::getPropertyValue($object, 'name');

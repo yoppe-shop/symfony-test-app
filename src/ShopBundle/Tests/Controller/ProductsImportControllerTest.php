@@ -102,7 +102,7 @@ class ProductsImportControllerTest extends WebTestCase
     {
         $method = self::getMethod('ShopBundle\\Controller\\ProductsImportController', 'titleOfIndexes');
         $titleOfIndexes = $method->invokeArgs($this->productsImportController, [$line0]);
-        $this->assertCount(22, $titleOfIndexes);
+        $this->assertCount(21, $titleOfIndexes);
         return $titleOfIndexes;
     }
 
@@ -145,10 +145,6 @@ class ProductsImportControllerTest extends WebTestCase
                     'action' => '',
                     'value' => 'red',
                 ],
-                'fr' => [
-                    'action' => '',
-                    'value' => 'rouge',
-                ],
             ]);
         }
         return $data;        
@@ -164,5 +160,14 @@ class ProductsImportControllerTest extends WebTestCase
         $method = $class->getMethod($methodName);
         $method->setAccessible(true);
         return $method;
+    }
+
+    protected static function getPropertyValue($object, $propertyName)
+    {
+        $reflectionClass = new ReflectionClass(get_class($object));
+        $reflectionProperty = $reflectionClass->getProperty($propertyName);
+        $reflectionProperty->setAccessible(true);
+
+        return $reflectionProperty->getValue($object);
     }
 }

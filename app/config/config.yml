@@ -57,7 +57,7 @@ doctrine:
                 server_version: 9.5
             mysql:
                 driver:   pdo_mysql
-                #schema_filter: ~^(products|products_description|products_attributes|products_options|products_options_values)$~
+                #schema_filter: ~^(languages)$~
                 host:     localhost
                 port:     null
                 dbname:   shop

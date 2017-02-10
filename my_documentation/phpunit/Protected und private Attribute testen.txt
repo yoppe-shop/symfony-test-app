@@ -1,0 +1,40 @@
+PHPUnit - protected/private Attribute aufrufen:
+
+Attribute:
+
+
+    protected static function getPropertyValue($object, $propertyName)
+    {
+        $reflectionClass = new ReflectionClass(get_class($object));
+        $reflectionProperty = $reflectionClass->getProperty($propertyName);
+        $reflectionProperty->setAccessible(true);
+
+        return $reflectionProperty->getValue($object);
+    }
+
+
+Aufruf z.B. mit self::getPropertyValue($object, 'name');
+
+
+Methoden [und Argumente per Referenz übergeben]:
+
+
+  protected static function getMethod($className, $methodName)
+  {
+      $class = new \ReflectionClass($className);
+      $method = $class->getMethod($methodName);
+      $method->setAccessible(true);
+      return $method;
+  }
+
+
+Aufruf z.B. folgendermaßen:
+
+  public function testGetCsvProductData()
+  {
+      $this->testCsvImportAction();
+      $initializeCsvFile = self::getMethod('ShopBundle\\Controller\\ProductsImportController', 'initializeCsvFile');
+      $productsImport = new ProductsImportController();
+      $initializeCsvFile->invokeArgs($productsImport, [&$this->csv]);
+      echo $this->csv;
+  }
