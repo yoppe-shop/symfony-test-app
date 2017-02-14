@@ -41,11 +41,12 @@ class ProductsImportController extends Controller
     public function csvImportAction()
     {
         $utils = $this->get('utils');
-        $debug = $this->get('debug');
 
+$csv = file_get_contents($this->get('kernel')->getRootDir() . DIR_SEP . ".." . DIR_SEP . "src" . DIR_SEP . "ShopBundle" . DIR_SEP . "Resources" . DIR_SEP . "testFiles" . DIR_SEP . "product_test.csv");
         $em = $this->getDoctrine()->getManager('mysql');
         $this->productsOptions($em);
         $this->getCsvProductData($em, $csv);
+exit;
         $products = $em->createQuery('
             SELECT p, pa, po 
             FROM ShopBundle:Product p 
@@ -62,16 +63,49 @@ class ProductsImportController extends Controller
     protected function getCsvProductData($em, &$csv)
     {
         /**
+        * Initialize error array
+        */
+        $this->errors = array();
+
+        /**
         * Returns Arrays $product, $productsDescription, $productsImage, $attributes
         */
         $fieldArrays = array();
+
+        /**
+        * Replace '\r' by ''
+        */
         $this->initializeCsvFile($csv);
-        $lines = getLines($csv);
-        $structureArray = $this->createStructureArray($em, $line0, $fieldArrays);
-        $titleOfIndexes = $this->titleOfIndexes($lines[0], $fieldArrays);
+
+        /**
+        * Get an array of lines:
+        */
+        $lines = $this->getLines($csv);
+
+        $titlesOfIndexes = $this->titlesOfIndexes($lines[0]);
+
+        $numIndexes = count($titlesOfIndexes);
+
+        /**
+        * Create an array of the structure of the titles:
+        */
+        $structureArray = $this->createStructureArray($em, $lines[0]);
+
+        if(!empty($this->errors))
+        {
+            print_r($this->errors);
+            return;
+        }
         unset($lines[0]);
 
-        return $this->createDataArray($line[1], $titleOfIndexes);
+        $products = array();
+        $lineNo = 1;
+
+        foreach($lines  as $line) {
+            $products[]= $this->createDataArray($em, $structureArray, $line, $numIndexes, $lineNo++);
+        }
+print_r($products);
+        return $products;
     }
 
     protected function initializeCsvFile(&$csv)
@@ -90,40 +124,48 @@ class ProductsImportController extends Controller
         return $lines;
     }
 
-    protected function createDataArray($em, &$line, $titleOfIndexes, $lineNo)
+    protected function createDataArray($em, &$fields, &$line, $numIndexes, $lineNo)
     {
-        // Produkt- und Produktdescription-Daten nach DB-Feldnamen rauslesen
-        // Attribute mit substr rausfiltern
+        $values = explode($this->csvFieldSep, $line);
+        if (count($fields) != $numIndexes) {
+            $error = 'Zeile ' . $lineNo . ': Die Anzahl der Werte stimmt nicht mit der Schlüsselanzahl überein.';
+            return false;
+        }
+        $product = array();
+        foreach($fields['product'] as $index => $field) {
+            if ($values[$index] != '') {
+                $product[$field['key']] = $values[$index];
+            }
+        }
+// Nur testweise hier schon zurückgeben:
+return $product['product']=$product;
 
         $product = array();
         $productsDescription = array();
         $attributes = array();
         $rawData = explode($this->csvFieldSep, $line);
-        if (count($rawData) != count($titleOfIndexes)) {
-            $error = 'Zeile ' . $lineNo . ': Die Anzahl der Werte stimmt nicht mit der Schlüsselanzahl überein.';
-            return false;
-        }
+
         $this->productsFields = $this->productsFields($em);
         $this->productsDescriptionFields = $this->productsDescriptionFields($em);
         $this->productsOptions = $this->productsOptions($em);
         $this->languages = $this->languages($em);
         $poCsvNames = $this->getPoCsvNames($em);
-        $langCodes = $this->getLangCodes();
+        $langIds = $this->getLangIds();
 
         foreach($rawData as $index => $value)
         {
             if ($value != '') {
                 if(substr($titleOfIndexes[$index], 0, 3) == 'a+.') {
-                    $this->setAttributesField($attributes, $poCsvNames, $langCodes, $titleOfIndexes[$index], '+', $value);
+                    $this->setAttributesField($attributes, $poCsvNames, $langIds, $titleOfIndexes[$index], '+', $value);
                 }
                 elseif(substr($titleOfIndexes[$index], 0, 2) == 'a.') {
-                    $this->setAttributesField($attributes, $poCsvNames, $langCodes, $titleOfIndexes[$index], '', $value);
+                    $this->setAttributesField($attributes, $poCsvNames, $langIds, $titleOfIndexes[$index], '', $value);
                 }
                 elseif(substr($titleOfIndexes[$index], 0, 3) == 'a-.') {
-                    $this->setAttributesField($attributes, $poCsvNames, $langCodes, $titleOfIndexes[$index], '-', $value);           
+                    $this->setAttributesField($attributes, $poCsvNames, $langIds, $titleOfIndexes[$index], '-', $value);           
                 }
                 elseif(strpos($titleOfIndexes[$index], '.') !== false) {
-                    $this->setProductsDescriptionField($productsDescription, $this->productsDescriptionFields, $langCodes, $titleOfIndexes[$index], $value);
+                    $this->setProductsDescriptionField($productsDescription, $this->productsDescriptionFields, $langIds, $titleOfIndexes[$index], $value);
                 }
                 else {
                     $this->setProductsField($product, $this->productsFields, $titleOfIndexes[$index], $value);
@@ -133,38 +175,81 @@ class ProductsImportController extends Controller
         return ['product' => $product, 'productsDescription' => $productsDescription, 'attributes' => $attributes];
     }
 
-    protected function createStructureArray($em, $line0, $fieldArrays)
+    protected function titlesOfIndexes($line0) {
+        return explode($this->csvFieldSep, $line0);
+    }
+
+    protected function createStructureArray($em, $line0)
     {
+        /**
+        * ['model',
+        * 'ean',
+        * 'image', 
+        * 'price',
+        * 'weight',
+        * 'status',
+        * 'manufacturers_id',
+        * 'manufacturers_model',
+        * 'manufacturers_ean',
+        * 'name.de',
+        * 'description.de',
+        * 'short_description.de',
+        * 'a.farbe.de',
+        * 'a.farbe.en',
+        * 'a.material.de',
+        * 'a.marke.de',
+        * 'a.groesse.de',
+        * 'a.gewicht.de',
+        * 'a.einsatzart.de',
+        * 'a.weitere_informationen.de',
+        * 'a.gewicht_mit_verpackung.de']
+        */
         $titleOfIndexes = explode($this->csvFieldSep, $line0);
 
+        /**
+        * Three sub arrays for the structure array:
+        */
         $product = array();
         $productsDescription = array();
         $attributes = array();
 
+        /**
+        * Following results as entity:
+        */
         $this->productsFields = $this->productsFields($em);
         $this->productsDescriptionFields = $this->productsDescriptionFields($em);
         $this->productsOptions = $this->productsOptions($em);
         $this->languages = $this->languages($em);
-        $poCsvNames = $this->getPoCsvNames($em);
-        $langCodes = $this->getLangCodes();
 
-        foreach ($titleOfIndexes as $key => $field) {
-            if(substr($field, 0, 3) == 'a+.') {
-                $this->createAttributesFieldArray($attributes, $poCsvNames, $langCodes, $titleOfIndexes[$index], '+', $value);
+        /**
+        * Not the real products options name, but the option names for the CSV list 
+        * ['farbe', 'material', ...]
+        */
+        $poCsvNames = $this->getPoCsvNames($em);
+
+        /**
+        * ['en' => 1, 'de' => 2]
+        */
+        $this->langIds = $this->getlangIds();
+
+        foreach ($titleOfIndexes as $key => $fieldString) {
+            if(substr($fieldString, 0, 3) == 'a+.') {
+                $attributes[$key]= $this->createAttributesField($poCsvNames, $fieldString, '+');
             }
-            elseif(substr($titleOfIndexes[$index], 0, 2) == 'a.') {
-                $this->createAttributesFieldArray($attributes, $poCsvNames, $langCodes, $titleOfIndexes[$index], '', $value);
+            elseif(substr($fieldString, 0, 2) == 'a.') {
+                $attributes[$key]= $this->createAttributesField($poCsvNames, $fieldString, '');
             }
-            elseif(substr($titleOfIndexes[$index], 0, 3) == 'a-.') {
-                $this->createAttributesFieldArray($attributes, $poCsvNames, $langCodes, $titleOfIndexes[$index], '-', $value);           
+            elseif(substr($fieldString, 0, 3) == 'a-.') {
+                $attributes[$key]= $this->createAttributesField($poCsvNames, $fieldString, '-');           
             }
-            elseif(strpos($titleOfIndexes[$index], '.') !== false) {
-                $this->createProductsDescriptionFieldArray($productsDescription, $this->productsDescriptionFields, $langCodes, $titleOfIndexes[$index], $value);
+            elseif(strpos($fieldString, '.') !== false) {
+                $productsDescription[$key]= $this->createProductsDescriptionField($this->productsDescriptionFields, $fieldString);
             }
             else {
-                $this->createProductsFieldArray($product, $this->productsFields, $titleOfIndexes[$index], $value);
+                $product[$key]=$this->createProductsField($this->productsFields, $fieldString);
             }
         }
+        return ['product' => $product, 'productsDescription' => $productsDescription, 'attributes' => $attributes];
     }
 
     protected function productsFields($em)
@@ -209,6 +294,55 @@ class ProductsImportController extends Controller
         return $languages;
     }
 
+    protected function createProductsField(&$productsFields, $key) {
+        $product = array();
+        if (in_array($key, $productsFields)) {
+            $product = ['key' => $key, 'value' => ''];
+        }
+        else {
+            $this->errors[]= 'Products: \'' . $key . '\' ist als Schlüssel nicht zugelassen.';
+        }
+        return $product;
+    }
+
+    protected function createProductsDescriptionField(&$productsDescriptionFields, $key)
+    {
+        $productsDescription = array();
+        $langItem = $this->langItem($key);
+        if (in_array($langItem['item'], $productsDescriptionFields)) {
+            $productsDescription = ['key' => $langItem['item'], 'langId' => $langItem['lang'], 'value' => ''];
+        }
+        else {
+            $this->errors[]= 'ProductsDescription: \'' . $langItem['item'] . '\' ist als Schlüssel nicht zugelassen.';
+        }
+        return $productsDescription;
+    }
+
+    protected function createAttributesField(&$poCsvNames, $key, $action)
+    {
+        /**
+        * Initialize return array
+        */
+        $attributeArray = array();
+
+        /**
+        * Cut the beginning 'a+.' off:
+        */
+        $attribute = substr($key, 2 + strlen($action));
+
+        /**
+        * Make an array $langItem = ['lang' => <langCode>, 'item' => <attributeName>]
+        */
+        $langItem = $this->langItem($attribute);
+        if (in_array($langItem['item'], $poCsvNames)) {
+            $attributeArray = ['key' => $langItem['item'], 'langId' => $langItem['lang'], 'action' => $action, 'value' => ''];
+        }
+        else {
+            $this->errors[]= 'Attribut: \'' . $langItem['item'] . '\' ist als Schlüssel nicht zugelassen.';
+        }
+        return $attributeArray;
+    }
+
     protected function setProductsField(&$product, &$productsFields, $key, $value) {
         if (in_array($key, $productsFields)) {
             $product[$key] = $value;
@@ -218,11 +352,10 @@ class ProductsImportController extends Controller
         }
     }
 
-    protected function setProductsDescriptionField(&$productsDescription, &$productsDescriptionFields, &$langCodes, $key, $value)
-    {
+    protected function setProductsDescriptionField(&$productsDescriptionFields, $key) {
         $langItem = $this->langItem($key);
         if (in_array($langItem['item'], $productsDescriptionFields)) {
-            if (in_array($langItem['lang'], $langCodes)) {
+            if (in_array($langItem['lang'], $langIds)) {
                 $productsDescription[$langItem['item']][$langItem['lang']] = $value;
             }
             else {
@@ -234,12 +367,12 @@ class ProductsImportController extends Controller
         }
     }
 
-    protected function setAttributesField(&$attributes, &$poCsvNames, &$langCodes, $key, $action, $value)
+    protected function setAttributesField(&$attributes, &$poCsvNames, &$langIds, $key, $action, $value)
     {
         $attribute = substr($key, 2 + strlen($action));
         $langItem = $this->langItem($attribute);
         if (in_array($langItem['item'], $poCsvNames)) {
-            if (in_array($langItem['lang'], $langCodes)) {
+            if (in_array($langItem['lang'], $langIds)) {
                 $attributes[$langItem['item']][$langItem['lang']] = ['action' => $action, 'value' => $value];
             }
             else {
@@ -254,9 +387,15 @@ class ProductsImportController extends Controller
     protected function langItem($key)
     {
         $pos = strpos($key, '.');
-        return $pos !== false ? 
-            [ 'lang' => substr($key, $pos + 1), 'item' => substr($key, 0, $pos)] : 
-            [ 'lang' => 'de', 'item' => $key];
+        if ($pos !== false) {
+            if (!isset($this->langIds[substr($key, $pos + 1)])) {
+                $this->errors[] = 'Die Sprache mit dem Code \'' . substr($key, $pos + 1) . '\' gibt es nicht.';
+            }
+            else {
+                return [ 'lang' => $this->langIds[substr($key, $pos + 1)], 'item' => substr($key, 0, $pos)];
+            }
+        }
+        return [ 'lang' => '2', 'item' => $key];
     }
 
     protected function getPoCsvNames($em)
@@ -274,12 +413,12 @@ class ProductsImportController extends Controller
         return $poCsvNames;
     }
 
-    protected function getLangCodes()
+    protected function getLangIds()
     {
-        $langCodes = array_map(function($language)
-        {
-            return $language->getCode();
-        }, $this->languages);
-        return $langCodes;
+        $langIds = array();
+        foreach ($this->languages as $language) {
+            $langIds[$language->getCode()] = $language->getLanguagesId();
+        }
+        return $langIds;
     }
 }

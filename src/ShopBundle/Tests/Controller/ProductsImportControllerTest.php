@@ -109,7 +109,7 @@ class ProductsImportControllerTest extends WebTestCase
     {
         $method = self::getMethod('ShopBundle\\Controller\\ProductsImportController', 'titleOfIndexes');
         $titleOfIndexes = $method->invokeArgs($this->productsImportController, [$line0]);
-        $this->assertCount(21, $titleOfIndexes);
+        $this->assertCount(20, $titleOfIndexes);
         return $titleOfIndexes;
     }
 
