@@ -45,7 +45,7 @@ class ProductsImportController extends Controller
 
         $em = $this->getDoctrine()->getManager('mysql');
         $this->productsOptions($em);
-        // $this->getCsvProductData($csv);
+        $this->getCsvProductData($em, $csv);
         $products = $em->createQuery('
             SELECT p, pa, po 
             FROM ShopBundle:Product p 
@@ -59,14 +59,16 @@ class ProductsImportController extends Controller
         ]);
     }
 
-    protected function getCsvProductData(&$csv)
+    protected function getCsvProductData($em, &$csv)
     {
         /**
         * Returns Arrays $product, $productsDescription, $productsImage, $attributes
         */
+        $fieldArrays = array();
         $this->initializeCsvFile($csv);
         $lines = getLines($csv);
-        $titleOfIndexes = $this->titleOfIndexes($lines[0]);
+        $structureArray = $this->createStructureArray($em, $line0, $fieldArrays);
+        $titleOfIndexes = $this->titleOfIndexes($lines[0], $fieldArrays);
         unset($lines[0]);
 
         return $this->createDataArray($line[1], $titleOfIndexes);
@@ -84,13 +86,8 @@ class ProductsImportController extends Controller
             if (empty($line)) {
                 unset($lines[$key]);
             }
-        }
+        } 
         return $lines;
-    }
-
-    protected function titleOfIndexes($line0)
-    {
-        return explode($this->csvFieldSep, $line0);
     }
 
     protected function createDataArray($em, &$line, $titleOfIndexes, $lineNo)
@@ -134,6 +131,40 @@ class ProductsImportController extends Controller
             }
         }
         return ['product' => $product, 'productsDescription' => $productsDescription, 'attributes' => $attributes];
+    }
+
+    protected function createStructureArray($em, $line0, $fieldArrays)
+    {
+        $titleOfIndexes = explode($this->csvFieldSep, $line0);
+
+        $product = array();
+        $productsDescription = array();
+        $attributes = array();
+
+        $this->productsFields = $this->productsFields($em);
+        $this->productsDescriptionFields = $this->productsDescriptionFields($em);
+        $this->productsOptions = $this->productsOptions($em);
+        $this->languages = $this->languages($em);
+        $poCsvNames = $this->getPoCsvNames($em);
+        $langCodes = $this->getLangCodes();
+
+        foreach ($titleOfIndexes as $key => $field) {
+            if(substr($field, 0, 3) == 'a+.') {
+                $this->createAttributesFieldArray($attributes, $poCsvNames, $langCodes, $titleOfIndexes[$index], '+', $value);
+            }
+            elseif(substr($titleOfIndexes[$index], 0, 2) == 'a.') {
+                $this->createAttributesFieldArray($attributes, $poCsvNames, $langCodes, $titleOfIndexes[$index], '', $value);
+            }
+            elseif(substr($titleOfIndexes[$index], 0, 3) == 'a-.') {
+                $this->createAttributesFieldArray($attributes, $poCsvNames, $langCodes, $titleOfIndexes[$index], '-', $value);           
+            }
+            elseif(strpos($titleOfIndexes[$index], '.') !== false) {
+                $this->createProductsDescriptionFieldArray($productsDescription, $this->productsDescriptionFields, $langCodes, $titleOfIndexes[$index], $value);
+            }
+            else {
+                $this->createProductsFieldArray($product, $this->productsFields, $titleOfIndexes[$index], $value);
+            }
+        }
     }
 
     protected function productsFields($em)

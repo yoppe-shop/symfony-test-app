@@ -29,8 +29,28 @@ class ProductsImportControllerTest extends WebTestCase
         $this->csv = file_get_contents(static::$kernel->getRootDir() . DIR_SEP . ".." . DIR_SEP . "src" . DIR_SEP . "ShopBundle" . DIR_SEP . "Resources" . DIR_SEP . "testFiles" . DIR_SEP . "product_test.csv");
     }
 
+    public function testControllerFunctions()
+    {
+        /**
+        * MAIN TEST
+        * Tests the main functions of the controller:
+        */
+        $this->loadCsv();
+
+        $this->initializeCsvFile();
+        $lines = $this->getLines($this->csv);
+        $titleOfIndexes = $this->titleOfIndexes($lines[0]);
+        unset($lines[0]);
+        foreach ($lines as $line) {
+            $this->createDataArray($line, $titleOfIndexes);
+        }
+    }
+
     public function testEntities()
     {
+        /**
+        *  Tests only that there are correct products and products options / values in the database:
+        */
         $products = $this->em 
             ->createQuery('
                 SELECT p, po, pov 
@@ -68,19 +88,6 @@ class ProductsImportControllerTest extends WebTestCase
         $method = self::getMethod('ShopBundle\\Controller\\ProductsImportController', 'productsOptions');
         $productsOptions = $method->invokeArgs($this->productsImportController, [$this->em]);
         $this->assertGreaterThanOrEqual(8, count($productsOptions));
-    }
-
-    public function testControllerFunctions()
-    {
-        $this->loadCsv();
-
-        $this->initializeCsvFile();
-        $lines = $this->getLines($this->csv);
-        $titleOfIndexes = $this->titleOfIndexes($lines[0]);
-        unset($lines[0]);
-        foreach ($lines as $line) {
-            $this->createDataArray($line, $titleOfIndexes);
-        }
     }
 
     public function initializeCsvFile()
