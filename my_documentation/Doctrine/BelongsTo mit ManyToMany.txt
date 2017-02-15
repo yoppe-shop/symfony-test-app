@@ -4,6 +4,8 @@ Entspricht BelongsToMany:
 Entity Product:
 ===============
 
+products_attributes ist die Verknüpfungstabelle, die products und products_options/products_options_values miteinander verknüpft:
+
     /**
     * @ORM\ManyToMany(targetEntity="ProductOption")
     * @ORM\JoinTable(name="product_attributes",
@@ -11,8 +13,8 @@ Entity Product:
     *     @ORM\JoinColumn(name="product_id", referencedColumnName="id")
     * },
     * inverseJoinColumns={
-    *     @ORM\JoinColumn(name="product_option_id", referencedColumnName="id"),
-    *     @ORM\JoinColumn(name="language_id", referencedColumnName="language_id")
+    *     @ORM\JoinColumn(name="product_option_id", referencedColumnName="id") /*,*/
+    *     /* @ORM\JoinColumn(name="language_id", referencedColumnName="language_id") */
     * }
     * )
     */

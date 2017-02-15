@@ -25,3 +25,64 @@ class DataTest extends TestCase
     }
 }
 ?>
+
+ACHTUNG: Kein automatischer Aufruf der setUp()-Methode!!! Umgehbar mit manuellem Aufruf dieser Methode:
+
+Note
+
+All data providers are executed before both the call to the setUpBeforeClass static method and 
+the first call to the setUp method. Because of that you can't access any variables you create 
+there from within a data provider. This is required in order for PHPUnit to be able to compute 
+the total number of tests. 
+Das kann man umgehen mit:
+<?php
+use PHPUnit\Framework\TestCase;
+
+class DataTest extends TestCase
+{
+    /**
+     * @dataProvider additionProvider
+     */
+    public function testAdd($a, $b, $expected)
+    {
+        $this->assertEquals($expected, $a + $b);
+    }
+
+    public function additionProvider()
+    {
+        $this->setUp();
+        return [
+            [0, 0, 0],
+            [0, 1, 1],
+            [1, 0, 1],
+            [1, 1, 3]
+        ];
+    }
+}
+?>
+
+Anderes Beispiel:
+
+    /**
+    * @dataProvider csvDataProvider
+    */
+    public function testProductsOptions($file, $expectedNumProducts)
+    {
+        $this->csv = $this->loadCsv($file);
+
+        $method = self::getMethod('ShopBundle\\Controller\\ProductsImportController', 'getCsvProductData');
+        $result = $method->invokeArgs($this->productsImportController, [$this->em, &$this->csv]);
+        $this->assertGreaterThanOrEqual(8, count($productsOptions));
+    }
+
+    public function csvDataProvider() {
+        $this->setUp();
+        $fileDir = static::$kernel->getRootDir() . DIR_SEP . ".." . DIR_SEP . "src" . DIR_SEP . "ShopBundle" . DIR_SEP . "Resources" . DIR_SEP . "testFiles" . DIR_SEP;
+        return [
+            [$fileDir . "product_test1.csv", 1],
+            [$fileDir . "product_test2.csv", 2],
+            [$fileDir . "product_test3.csv", 0],
+            [$fileDir . "product_test4.csv", 0],
+            [$fileDir . "product_test5.csv", 2],
+        ];
+    }

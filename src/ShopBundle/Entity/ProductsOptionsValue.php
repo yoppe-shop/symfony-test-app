@@ -126,4 +126,18 @@ class ProductsOptionsValue
     {
         return $this->product;
     }
+
+    /**
+     * Set product
+     *
+     * @param Product $product
+     *
+     * @return ProductsOptionsValue
+     */
+    public function setProduct(Product $product)
+    {
+        $this->product = $product;
+
+        return $this;
+    }
 }

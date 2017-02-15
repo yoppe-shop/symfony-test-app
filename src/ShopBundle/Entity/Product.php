@@ -267,6 +267,8 @@ class Product
     public function __construct()
     {
         $this->productsAttributes = new ArrayCollection();
+        $this->productsOptions = new ArrayCollection();
+        $this->productsOptionsValues = new ArrayCollection();
     }
 
     public function __toString()
@@ -1034,8 +1036,48 @@ class Product
         return $this->productsOptions;
     }
 
+    public function hasProductsOption(ProductsOption $productsOption)
+    {
+        return $this->productsOptions->contains($productsOption);
+    }
+
+    public function addProductsOption(ProductsOption $productsOption)
+    {
+        $this->productsOptions->add($productsOption);
+    }
+
+    public function removeProductsOption(ProductsOption $productsOption)
+    {
+        $this->productsOptions->removeElement($productsOption);
+    }
+
+    public function clearProductsOptions()
+    {
+        $this->productsOptions->clear();
+    }
+
     public function getProductsOptionsValues()
     {
         return $this->productsOptionsValues;
+    }
+
+    public function hasProductsOptionsValue(ProductsOptionsValue $productsOptionsValue)
+    {
+        return $this->productsOptionsValues->contains($productsOptionsValue);
+    }
+
+    public function addProductsOptionsValue(ProductsOptionsValue $productsOptionsValue)
+    {
+        $this->productsOptionsValues->add($productsOptionsValue);
+    }
+
+    public function removeProductsOptionsValue(ProductsOptionsValue $productsOptionsValue)
+    {
+        $this->productsOptionsValues->removeElement($productsOptionsValue);
+    }
+
+    public function clearProductsOptionsValues()
+    {
+        $this->productsOptionsValues->clear();
     }
 }

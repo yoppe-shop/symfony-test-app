@@ -42,19 +42,25 @@ class ProductsImportController extends Controller
     {
         $utils = $this->get('utils');
 
-$csv = file_get_contents($this->get('kernel')->getRootDir() . DIR_SEP . ".." . DIR_SEP . "src" . DIR_SEP . "ShopBundle" . DIR_SEP . "Resources" . DIR_SEP . "testFiles" . DIR_SEP . "product_test.csv");
+$csv = file_get_contents($this->get('kernel')->getRootDir() . DIR_SEP . ".." . DIR_SEP . "src" . DIR_SEP . "ShopBundle" . DIR_SEP . "Resources" . DIR_SEP . "testFiles" . DIR_SEP . "product_test1.csv");
         $em = $this->getDoctrine()->getManager('mysql');
         $this->productsOptions($em);
-        $this->getCsvProductData($em, $csv);
-exit;
-        $products = $em->createQuery('
-            SELECT p, pa, po 
-            FROM ShopBundle:Product p 
-            LEFT JOIN p.productsAttributes pa 
-            LEFT JOIN pa.productsOptions po 
-        ')
-        ->getResult();
-        //$debug->pr($products,6);
+
+        /**
+        * Fetch the data arrays with the products´ data:
+        */
+        $products = $this->getCsvProductData($em, $csv);
+
+
+        if (empty($this->errors)) {
+            /**
+            * Save products data:
+            */
+            $this->saveProducts($em, $products);
+        }
+        else {
+            print_r($this->errors());
+        }
 
         return $this->render('ShopBundle:ProductsImport:csv_import.html.twig', [
         ]);
@@ -93,8 +99,7 @@ exit;
 
         if(!empty($this->errors))
         {
-            print_r($this->errors);
-            return;
+            return false;
         }
         unset($lines[0]);
 
@@ -104,7 +109,7 @@ exit;
         foreach($lines  as $line) {
             $products[]= $this->createProductsDataArray($em, $structureArray, $line, $numIndexes, $lineNo++);
         }
-$utils = $this->get('debug')->pr($products, 5, false); exit;
+
         return $products;
     }
 
@@ -368,5 +373,36 @@ $utils = $this->get('debug')->pr($products, 5, false); exit;
             $langIds[$language->getCode()] = $language->getLanguagesId();
         }
         return $langIds;
+    }
+
+    protected function saveProducts($em, $products)
+    {
+        foreach ($products as $product) {
+            $this->saveProduct($em, $product);
+        }
+    }
+
+    protected function saveProduct($em, $productData)
+    {
+$debug = $this->get('debug');
+        $product = $em
+        ->getRepository('ShopBundle:Product')
+        ->findOneByProductsModel($productData['product']['model']);
+
+        $productsOption = $em
+            ->getRepository('ShopBundle:ProductsOption')
+            ->findOneByProductsOptionsId(2);
+
+        $productsOptionsValue = $em
+            ->getRepository('ShopBundle:ProductsOptionsValue')
+            ->findOneByProductsOptionsValuesId(3);
+
+$product->addProductsOption($productsOption);
+$productsOption->setProduct($product);
+$product->addProductsOptionsValue($productsOptionsValue);
+$productsOptionsValue->setProduct($product);
+$em->persist($product);
+$em->flush();
+exit;
     }
 }
