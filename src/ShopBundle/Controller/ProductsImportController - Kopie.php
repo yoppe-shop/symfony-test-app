@@ -149,6 +149,41 @@ $utils = $this->get('debug')->pr($products, 5, false); exit;
                 $attributes[$field['key']][$field['subKey']][$field['langId']] = $values[$index]; 
             }
         }
+// Nur testweise hier schon zurückgeben:
+return ['product' => $product, 'productsDescription' => $productsDescription, 'attributes' => $attributes];
+
+        $product = array();
+        $productsDescription = array();
+        $attributes = array();
+        $rawData = explode($this->csvFieldSep, $line);
+
+        $this->productsFields = $this->productsFields($em);
+        $this->productsDescriptionFields = $this->productsDescriptionFields($em);
+        $this->productsOptions = $this->productsOptions($em);
+        $this->languages = $this->languages($em);
+        $poCsvNames = $this->getPoCsvNames($em);
+        $langIds = $this->getLangIds();
+
+        foreach($rawData as $index => $value)
+        {
+            if ($value != '') {
+                if(substr($titleOfIndexes[$index], 0, 3) == 'a+.') {
+                    $this->setAttributesField($attributes, $poCsvNames, $langIds, $titleOfIndexes[$index], '+', $value);
+                }
+                elseif(substr($titleOfIndexes[$index], 0, 2) == 'a.') {
+                    $this->setAttributesField($attributes, $poCsvNames, $langIds, $titleOfIndexes[$index], '', $value);
+                }
+                elseif(substr($titleOfIndexes[$index], 0, 3) == 'a-.') {
+                    $this->setAttributesField($attributes, $poCsvNames, $langIds, $titleOfIndexes[$index], '-', $value);           
+                }
+                elseif(strpos($titleOfIndexes[$index], '.') !== false) {
+                    $this->setProductsDescriptionField($productsDescription, $this->productsDescriptionFields, $langIds, $titleOfIndexes[$index], $value);
+                }
+                else {
+                    $this->setProductsField($product, $this->productsFields, $titleOfIndexes[$index], $value);
+                }
+            }
+        }
         return ['product' => $product, 'productsDescription' => $productsDescription, 'attributes' => $attributes];
     }
 
@@ -318,6 +353,47 @@ $utils = $this->get('debug')->pr($products, 5, false); exit;
             $this->errors[]= 'Attribut: \'' . $langItem['item'] . '\' ist als Schlüssel nicht zugelassen.';
         }
         return $attributeArray;
+    }
+
+    protected function setProductsField(&$product, &$productsFields, $key, $value) {
+        if (in_array($key, $productsFields)) {
+            $product[$key] = $value;
+        }
+        else {
+            $this->errors[]= 'Products: \'' . $key . '\' ist als Schlüssel nicht zugelassen.';
+        }
+    }
+
+    protected function setProductsDescriptionField(&$productsDescriptionFields, $key) {
+        $langItem = $this->langItem($key);
+        if (in_array($langItem['item'], $productsDescriptionFields)) {
+            if (in_array($langItem['lang'], $langIds)) {
+                $productsDescription[$langItem['item']][$langItem['lang']] = $value;
+            }
+            else {
+                $this->errors[]= 'ProductsDescription: \'' . $langItem['lang'] . '\' ist als Sprachcode nicht zugelassen.';                
+            }
+        }
+        else {
+            $this->errors[]= 'ProductsDescription: \'' . $langItem['item'] . '\' ist als Schlüssel nicht zugelassen.';
+        }
+    }
+
+    protected function setAttributesField(&$attributes, &$poCsvNames, &$langIds, $key, $action, $value)
+    {
+        $attribute = substr($key, 2 + strlen($action));
+        $langItem = $this->langItem($attribute);
+        if (in_array($langItem['item'], $poCsvNames)) {
+            if (in_array($langItem['lang'], $langIds)) {
+                $attributes[$langItem['item']][$langItem['lang']] = ['action' => $action, 'value' => $value];
+            }
+            else {
+                $this->errors[]= 'Attribut: \'' . $langItem['lang'] . '\' ist als Sprachcode nicht zugelassen.';               
+            }
+        }
+        else {
+            $this->errors[]= 'Attribut: \'' . $langItem['item'] . '\' ist als Schlüssel nicht zugelassen.';
+        }
     }
 
     protected function langItem($key)
