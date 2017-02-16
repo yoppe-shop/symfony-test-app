@@ -397,12 +397,13 @@ $debug = $this->get('debug');
             ->getRepository('ShopBundle:ProductsOptionsValue')
             ->findOneByProductsOptionsValuesId(3);
 
-$product->addProductsOption($productsOption);
-$productsOption->setProduct($product);
-$product->addProductsOptionsValue($productsOptionsValue);
-$productsOptionsValue->setProduct($product);
-$em->persist($product);
-$em->flush();
+        $productsAttribute = new ProductsAttribute();
+        $productsAttribute->addProductsOption($productsOption);
+        $productsAttribute->addProductsOptionsValue($productsOptionsValue);
+
+        $em->persist($product);
+        $em->flush();
+        $debug->pr($product, 4);
 exit;
     }
 }

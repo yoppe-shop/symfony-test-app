@@ -1,0 +1,6 @@
+Unique constraint in Entity einfügen:
+
+/**
+* @ORM\Entity
+* @ORM\Table(name="product_options", uniqueConstraints={@UniqueConstraint(name="product_options_pkey", columns={"id", "language_id"})})
+*/

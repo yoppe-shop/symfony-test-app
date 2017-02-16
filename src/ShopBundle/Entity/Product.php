@@ -238,32 +238,6 @@ class Product
     */
     private $productsAttributes;
 
-    /**
-    * @ORM\ManyToMany(targetEntity="ProductsOption")
-    * @ORM\JoinTable(name="products_attributes",
-    * joinColumns={
-    *     @ORM\JoinColumn(name="products_id", referencedColumnName="products_id")
-    * },
-    * inverseJoinColumns={
-    *     @ORM\JoinColumn(name="options_id", referencedColumnName="products_options_id")
-    * }
-    * )
-    */
-    protected $productsOptions;
-
-    /**
-    * @ORM\ManyToMany(targetEntity="ProductsOptionsValue")
-    * @ORM\JoinTable(name="products_attributes",
-    * joinColumns={
-    *     @ORM\JoinColumn(name="products_id", referencedColumnName="products_id")
-    * },
-    * inverseJoinColumns={
-    *     @ORM\JoinColumn(name="options_values_id", referencedColumnName="products_options_values_id")
-    * }
-    * )
-    */
-    protected $productsOptionsValues;
-
     public function __construct()
     {
         $this->productsAttributes = new ArrayCollection();
@@ -1013,7 +987,7 @@ class Product
 
     public function hasProductsAttribute(ProductsAttribute $productsAttribute)
     {
-        return $this->productsAttributes->contains($productAttribute);
+        return $this->productsAttributes->contains($productsAttribute);
     }
 
     public function addProductsAttribute(ProductsAttribute $productsAttribute)
@@ -1029,55 +1003,5 @@ class Product
     public function clearProductsAttributes()
     {
         $this->productsAttributes->clear();
-    }
-
-    public function getProductsOptions()
-    {
-        return $this->productsOptions;
-    }
-
-    public function hasProductsOption(ProductsOption $productsOption)
-    {
-        return $this->productsOptions->contains($productsOption);
-    }
-
-    public function addProductsOption(ProductsOption $productsOption)
-    {
-        $this->productsOptions->add($productsOption);
-    }
-
-    public function removeProductsOption(ProductsOption $productsOption)
-    {
-        $this->productsOptions->removeElement($productsOption);
-    }
-
-    public function clearProductsOptions()
-    {
-        $this->productsOptions->clear();
-    }
-
-    public function getProductsOptionsValues()
-    {
-        return $this->productsOptionsValues;
-    }
-
-    public function hasProductsOptionsValue(ProductsOptionsValue $productsOptionsValue)
-    {
-        return $this->productsOptionsValues->contains($productsOptionsValue);
-    }
-
-    public function addProductsOptionsValue(ProductsOptionsValue $productsOptionsValue)
-    {
-        $this->productsOptionsValues->add($productsOptionsValue);
-    }
-
-    public function removeProductsOptionsValue(ProductsOptionsValue $productsOptionsValue)
-    {
-        $this->productsOptionsValues->removeElement($productsOptionsValue);
-    }
-
-    public function clearProductsOptionsValues()
-    {
-        $this->productsOptionsValues->clear();
     }
 }

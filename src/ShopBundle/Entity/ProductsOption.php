@@ -45,17 +45,15 @@ class ProductsOption
     private $productsOptionsSortorder;
 
     /**
-    * @ORM\ManyToMany(targetEntity="Product")
-    * @ORM\JoinTable(name="products_attributes",
-    * joinColumns={
-    *     @ORM\JoinColumn(name="options_id", referencedColumnName="products_options_id")
-    * },
-    * inverseJoinColumns={
-    *     @ORM\JoinColumn(name="products_id", referencedColumnName="products_id")
-    * }
-    * )
+    * @ORM\ManyToOne(targetEntity="ProductsAttribute", inversedBy="productsOptions")
+    * @ORM\JoinColumn(name="products_options_id", referencedColumnName="options_id")
     */
-    protected $product;
+    protected $productsAttribute;
+
+    public function __construct()
+    {
+        // $this->productsAttributes = new ArrayCollection();
+    }
 
     /**
      * Set productsOptionsName
@@ -153,27 +151,13 @@ class ProductsOption
         return $this->languageId;
     }
 
-    /**
-     * Get product
-     *
-     * @return Product
-     */
-    public function getProduct()
+    public function getProductsAttribute()
     {
-        return $this->product;
+        return $this->productsAttribute;
     }
 
-    /**
-     * Set product
-     *
-     * @param Product $product
-     *
-     * @return ProductsOption
-     */
-    public function setProduct(Product $product)
+    public function setProductsAttribute(ProductsAttribute $productsAttribute)
     {
-        $this->product = $product;
-
-        return $this;
+        $this->productsAttribute = $productsAttribute;
     }
 }
