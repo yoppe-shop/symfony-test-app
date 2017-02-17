@@ -1,0 +1,17 @@
+OneToOne bidirectional:
+
+Auf der Seite, deren FK auf einen Primary Key der anderen Entity verweist, 
+werden "inversedBy" und die JoinColumns angegeben:
+
+    /**
+     * @ORM\OneToOne(targetEntity="ProductsOption", inversedBy="productsAttribute", cascade="persist")
+     * @ORM\JoinColumn(name="options_id", referencedColumnName="products_options_id")
+     */
+     private $productsOption;
+
+Auf der anderen Seite werden NUR die Entität und "mappedBy" verwendet:
+
+    /**
+    * @ORM\OneToOne(targetEntity="ProductsAttribute", mappedBy="productsOption")
+    */
+    protected $productsAttribute;

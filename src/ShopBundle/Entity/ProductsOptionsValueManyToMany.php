@@ -38,9 +38,10 @@ class ProductsOptionsValue
     private $productsOptionsValuesName = '';
 
     /**
-    * @ORM\OneToOne(targetEntity="ProductsAttribute", mappedBy="productsOptionsValue")
+    * @ORM\ManyToOne(targetEntity="ProductsAttribute", inversedBy="productsOptionsValues")
+    * @ORM\JoinColumn(name="products_options_values_id", referencedColumnName="options_values_id")
     */
-    protected $productsAttribute;
+    // protected $productsAttribute;
 
     public function __construct()
     {
@@ -118,7 +119,7 @@ class ProductsOptionsValue
     {
         return $this->languageId;
     }
-
+/*
     public function getProductsAttribute()
     {
         return $this->productsAttribute;
@@ -127,7 +128,6 @@ class ProductsOptionsValue
     public function setProductsAttribute(ProductsAttribute $productsAttribute)
     {
         $this->productsAttribute = $productsAttribute;
-
-        return $this;
     }
+*/
 }

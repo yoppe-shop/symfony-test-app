@@ -390,20 +390,32 @@ $debug = $this->get('debug');
         ->findOneByProductsModel($productData['product']['model']);
 
         $productsOption = $em
-            ->getRepository('ShopBundle:ProductsOption')
-            ->findOneByProductsOptionsId(2);
+            ->createQuery('
+                SELECT po
+                FROM ShopBundle:ProductsOption po 
+                WHERE po.productsOptionsId=2
+                AND po.languageId=2 
+            ')
+            ->getResult();
+        $debug->pr($productsOption); exit;
 
         $productsOptionsValue = $em
             ->getRepository('ShopBundle:ProductsOptionsValue')
             ->findOneByProductsOptionsValuesId(3);
 
         $productsAttribute = new ProductsAttribute();
-        $productsAttribute->addProductsOption($productsOption);
-        $productsAttribute->addProductsOptionsValue($productsOptionsValue);
-
+        $productsAttribute->setOptionsValuesPrice('0.00');
+        $productsAttribute->setPricePrefix('0');
+        $productsAttribute->setOptionsValuesWeight('0.0');
+        $productsAttribute->setWeightPrefix('0');
+        $productsAttribute->setAttributesVpeId('0.0');
+        $productsAttribute->setAttributesVpeValue('0');
+        $productsAttribute->setProductsOption($productsOption);
+        $product->addProductsAttribute($productsAttribute);
+        $productsAttribute->setProduct($product);
+        $productsAttribute->setProductsOptionsValue($productsOptionsValue);
+        //$debug->pr($product, 5);
         $em->persist($product);
         $em->flush();
-        $debug->pr($product, 4);
-exit;
     }
 }

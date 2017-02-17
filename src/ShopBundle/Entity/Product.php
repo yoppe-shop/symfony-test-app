@@ -241,8 +241,6 @@ class Product
     public function __construct()
     {
         $this->productsAttributes = new ArrayCollection();
-        $this->productsOptions = new ArrayCollection();
-        $this->productsOptionsValues = new ArrayCollection();
     }
 
     public function __toString()

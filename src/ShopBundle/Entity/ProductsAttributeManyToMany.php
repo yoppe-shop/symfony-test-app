@@ -121,16 +121,24 @@ class ProductsAttribute
     private $product;
 
     /**
-     * @ORM\OneToOne(targetEntity="ProductsOption", inversedBy="productsAttribute", cascade="persist")
-     * @ORM\JoinColumn(name="options_id", referencedColumnName="products_options_id")
+     * @ORM\ManyToMany(targetEntity="ProductsOption", mappedBy="productsAttributes")
+     * @ORM\JoinTable(name="products_attributes"),
+     * joinColumns={
+     *     @ORM\JoinColumn(name="products_options_id", referencedColumnName="options_id")
+     * }
+     * )
      */
-     private $productsOption;
+     private $productsOptions;
 
     /**
-     * @ORM\OneToOne(targetEntity="ProductsOptionsValue", inversedBy="productsAttribute", cascade="persist")
-     * @ORM\JoinColumn(name="options_values_id", referencedColumnName="products_options_values_id")
+     * @ORM\ManyToMany(targetEntity="ProductsOptionsValue", mappedBy="productsAttributes")
+     * @ORM\JoinTable(name="products_attributes"),
+     * joinColumns={
+     *     @ORM\JoinColumn(name="products_options_values_id", referencedColumnName="options_values_id")
+     * }
+     * )
      */
-     private $productsOptionsValue;
+     private $productsOptionsValues;
 
     public function __construct()
     {
@@ -470,34 +478,59 @@ class ProductsAttribute
         return $this->product;
     }
 
-    public function setProduct($product)
+    public function setProduct(Product $product)
     {
         $this->product = $product;
 
         return $this;
     }
-
-    public function getProductsOption()
+    public function getProductsOptions()
     {
-        return $this->productsOption;
+        return $this->productsOptions;
     }
 
-    public function setProductsOption(ProductsOption $productsOption)
+    public function hasProductsOption(ProductsOption $productsOption)
     {
-        $this->productsOption = $productsOption;
-
-        return $this;
+        return $this->productsOptions->contains($productsOption);
     }
 
-    public function getProductsOptionsValue()
+    public function addProductsOption(ProductsOption $productsOption)
     {
-        return $this->productsOptionsValue;
+        $this->productsOptions->add($productsOption);
     }
 
-    public function setProductsOptionsValue(ProductsOptionsValue $productsOptionsValue)
+    public function removeProductsOption(ProductsOption $productsOption)
     {
-        $this->productsOptionsValue = $productsOptionsValue;
+        $this->productsOptions->removeElement($productsOption);
+    }
 
-        return $this;
+    public function clearProductsOptions()
+    {
+        $this->productsOptions->clear();
+    }
+
+    public function getProductsOptionsValues()
+    {
+        return $this->productsOptionsValues;
+    }
+
+    public function hasProductsOptionsValue(ProductsOptionsValue $productsOptionsValue)
+    {
+        return $this->productsOptionsValues->contains($productsOptionsValue);
+    }
+
+    public function addProductsOptionsValue(ProductsOption $productsOptionsValue)
+    {
+        $this->productsOptionsValues->add($productsOptionsValue);
+    }
+
+    public function removeProductsOptionsValue(ProductsOptionsValue $productsOptionsValue)
+    {
+        $this->productsOptionsValues->removeElement($productsOptionsValue);
+    }
+
+    public function clearProductsOptionsValues()
+    {
+        $this->productsOptionsValues->clear();
     }
 }

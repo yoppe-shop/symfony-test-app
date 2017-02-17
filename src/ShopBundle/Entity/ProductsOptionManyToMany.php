@@ -45,7 +45,8 @@ class ProductsOption
     private $productsOptionsSortorder;
 
     /**
-    * @ORM\OneToOne(targetEntity="ProductsAttribute", mappedBy="productsOption")
+    * @ORM\ManyToOne(targetEntity="ProductsAttribute", inversedBy="productsOptions")
+    * @ORM\JoinColumn(name="products_options_id", referencedColumnName="options_id")
     */
     protected $productsAttribute;
 
@@ -158,8 +159,5 @@ class ProductsOption
     public function setProductsAttribute(ProductsAttribute $productsAttribute)
     {
         $this->productsAttribute = $productsAttribute;
-
-        return $this;
     }
-
 }
