@@ -417,22 +417,24 @@ $debug = $this->get('debug');
         $productsAttribute->setOptionsId($productsOption[0]->getProductsOptionsId());
         $productsAttribute->setOptionsValuesId($productsOptionsValue->getProductsOptionsValuesId());
         // $productsAttribute->setProductsOptionsValue($productsOptionsValue);
-        $em->persist($product);
-        $em->flush();
+        //$em->persist($product);
+        //$em->flush();
         $result = $em
             ->createQuery("
                 SELECT p, pa, po, pov
                 FROM ShopBundle:Product p 
                 LEFT JOIN p.productsAttributes pa 
                 LEFT JOIN ShopBundle:ProductsOption po WITH po.productsOptionsId=pa.optionsId AND po.languageId = '2'
-                LEFT JOIN ShopBundle:ProductsOptionsValue pov WITH  pov.productsOptionsValuesId=pa.optionsValuesId AND pov.languageId='2'
+                LEFT JOIN ShopBundle:ProductsOptionsValue pov WITH pov.productsOptionsValuesId=pa.optionsValuesId AND pov.languageId='2'
             ")
-            ->getResult();
-        echo "Klasse: " . get_class($result[1]);
-        echo "<pre>"; print_r($result[1]); echo "</pre>"; 
-        echo "<pre>"; print_r($result[2]); echo "</pre>"; exit;
-        $debug->pr($result[1], 4);
-        $debug->pr($result[2], 4);
+            ->getResult(\Doctrine\ORM\AbstractQuery::HYDRATE_OBJECT);
+        $newArray = array();
+        foreach($result as $object)
+        {
+            $newArray[get_class($object)][] = $object;
+        }
+        $debug->pr($newArray, 5);
+       // $debug->pr($result[2], 4);
         exit;
     }
 }
