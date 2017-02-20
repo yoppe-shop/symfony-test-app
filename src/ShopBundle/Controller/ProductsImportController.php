@@ -397,11 +397,12 @@ $debug = $this->get('debug');
                 AND po.languageId=2 
             ')
             ->getResult();
-        $debug->pr($productsOption); exit;
+        // $debug->pr($productsOption);
 
         $productsOptionsValue = $em
             ->getRepository('ShopBundle:ProductsOptionsValue')
             ->findOneByProductsOptionsValuesId(3);
+        // $debug->pr($productsOptionsValue);
 
         $productsAttribute = new ProductsAttribute();
         $productsAttribute->setOptionsValuesPrice('0.00');
@@ -410,12 +411,28 @@ $debug = $this->get('debug');
         $productsAttribute->setWeightPrefix('0');
         $productsAttribute->setAttributesVpeId('0.0');
         $productsAttribute->setAttributesVpeValue('0');
-        $productsAttribute->setProductsOption($productsOption);
+        // $productsAttribute->setProductsOption($productsOption[0]);
         $product->addProductsAttribute($productsAttribute);
         $productsAttribute->setProduct($product);
-        $productsAttribute->setProductsOptionsValue($productsOptionsValue);
-        //$debug->pr($product, 5);
+        $productsAttribute->setOptionsId($productsOption[0]->getProductsOptionsId());
+        $productsAttribute->setOptionsValuesId($productsOptionsValue->getProductsOptionsValuesId());
+        // $productsAttribute->setProductsOptionsValue($productsOptionsValue);
         $em->persist($product);
         $em->flush();
+        $result = $em
+            ->createQuery("
+                SELECT p, pa, po, pov
+                FROM ShopBundle:Product p 
+                LEFT JOIN p.productsAttributes pa 
+                LEFT JOIN ShopBundle:ProductsOption po WITH po.productsOptionsId=pa.optionsId AND po.languageId = '2'
+                LEFT JOIN ShopBundle:ProductsOptionsValue pov WITH  pov.productsOptionsValuesId=pa.optionsValuesId AND pov.languageId='2'
+            ")
+            ->getResult();
+        echo "Klasse: " . get_class($result[1]);
+        echo "<pre>"; print_r($result[1]); echo "</pre>"; 
+        echo "<pre>"; print_r($result[2]); echo "</pre>"; exit;
+        $debug->pr($result[1], 4);
+        $debug->pr($result[2], 4);
+        exit;
     }
 }

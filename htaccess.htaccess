@@ -1,0 +1,18 @@
+#RewriteEngine On
+#RewriteCond %{HTTP_HOST} !^localhost$
+#RewriteRule ^(.*)$ http://localhost/$1 [L,R=301]
+#RewriteBase /symfony/
+#RewriteCond %{REQUEST_URI} /(.*)
+#RewriteRule (.*)$ web/app_dev.php/$1 [QSA,L]
+
+<IfModule mod_rewrite.c>
+    Options +FollowSymlinks
+    RewriteEngine On
+
+RewriteBase /symfony/web/
+    RewriteCond %{REQUEST_FILENAME} !-f
+
+    # Change below before deploying to production
+    #RewriteRule ^(.*)$ /app.php [QSA,L]
+    RewriteRule ^(.*)$ app_dev.php [QSA,L]
+</IfModule>

@@ -121,21 +121,21 @@ class ProductsAttribute
     private $product;
 
     /**
-     * @ORM\OneToOne(targetEntity="ProductsOption", inversedBy="productsAttribute", cascade="persist")
-     * @ORM\JoinColumn(name="options_id", referencedColumnName="products_options_id")
+     * ORM\OneToOne(targetEntity="ProductsOption", inversedBy="productsAttribute", cascade="persist")
+     * ORM\JoinColumn(name="options_id", referencedColumnName="products_options_id")
      */
-     private $productsOption;
+     // private $productsOption;
 
     /**
-     * @ORM\OneToOne(targetEntity="ProductsOptionsValue", inversedBy="productsAttribute", cascade="persist")
-     * @ORM\JoinColumn(name="options_values_id", referencedColumnName="products_options_values_id")
+     * ORM\OneToOne(targetEntity="ProductsOptionsValue", inversedBy="productsAttribute", cascade="persist")
+     * ORM\JoinColumn(name="options_values_id", referencedColumnName="products_options_values_id")
      */
-     private $productsOptionsValue;
+     // private $productsOptionsValue;
 
     public function __construct()
     {
-        $this->productsOptions = new ArrayCollection();
-        $this->productsOptionsValues = new ArrayCollection();
+        // $this->productsOptions = new ArrayCollection();
+        // $this->productsOptionsValues = new ArrayCollection();
     }
 
     public function __toString()
@@ -476,7 +476,7 @@ class ProductsAttribute
 
         return $this;
     }
-
+/*
     public function getProductsOption()
     {
         return $this->productsOption;
@@ -500,4 +500,5 @@ class ProductsAttribute
 
         return $this;
     }
+*/
 }

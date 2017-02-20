@@ -38,9 +38,9 @@ class ProductsOptionsValue
     private $productsOptionsValuesName = '';
 
     /**
-    * @ORM\OneToOne(targetEntity="ProductsAttribute", mappedBy="productsOptionsValue")
+    * ORM\OneToOne(targetEntity="ProductsAttribute", mappedBy="productsOptionsValue")
     */
-    protected $productsAttribute;
+    // protected $productsAttribute;
 
     public function __construct()
     {
@@ -118,7 +118,7 @@ class ProductsOptionsValue
     {
         return $this->languageId;
     }
-
+/*
     public function getProductsAttribute()
     {
         return $this->productsAttribute;
@@ -130,4 +130,5 @@ class ProductsOptionsValue
 
         return $this;
     }
+*/
 }

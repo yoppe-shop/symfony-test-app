@@ -45,9 +45,9 @@ class ProductsOption
     private $productsOptionsSortorder;
 
     /**
-    * @ORM\OneToOne(targetEntity="ProductsAttribute", mappedBy="productsOption")
+    * ORM\OneToOne(targetEntity="ProductsAttribute", mappedBy="productsOption")
     */
-    protected $productsAttribute;
+    // protected $productsAttribute;
 
     public function __construct()
     {
@@ -149,7 +149,7 @@ class ProductsOption
     {
         return $this->languageId;
     }
-
+/*
     public function getProductsAttribute()
     {
         return $this->productsAttribute;
@@ -161,5 +161,5 @@ class ProductsOption
 
         return $this;
     }
-
+*/
 }
