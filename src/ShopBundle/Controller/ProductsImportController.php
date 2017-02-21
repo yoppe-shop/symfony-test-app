@@ -14,9 +14,26 @@ use ShopBundle\Entity\ProductsOptionsValue;
 class ProductsImportController extends Controller
 {
     protected $csvFieldSep;
+    /**
+    * Fields without 'products_' for easier csv handling:
+    */
     protected $productsFields = array();
+    /**
+    * Fields including products_ for storing in db:
+    */
+    protected $dbProductsFields = array();
+    /**
+    * Fields without 'products_' for easier csv handling:
+    */
     protected $productsDescriptionFields = array();
+    /**
+    * Fields including products_ for storing in db:
+    */
+    protected $dbProductsDescriptionFields = array();
     protected $productsOptions = array();
+    /**
+    * Available languages in the shop:
+    */
     protected $languages = array();
 
     protected $errors = array();
@@ -41,16 +58,15 @@ class ProductsImportController extends Controller
     public function csvImportAction()
     {
         $utils = $this->get('utils');
+        $debug = $this->get('debug');
 
 $csv = file_get_contents($this->get('kernel')->getRootDir() . DIR_SEP . ".." . DIR_SEP . "src" . DIR_SEP . "ShopBundle" . DIR_SEP . "Resources" . DIR_SEP . "testFiles" . DIR_SEP . "product_test1.csv");
         $em = $this->getDoctrine()->getManager('mysql');
-        $this->productsOptions($em);
 
         /**
         * Fetch the data arrays with the products´ data:
         */
         $products = $this->getCsvProductData($em, $csv);
-
 
         if (empty($this->errors)) {
             /**
@@ -151,7 +167,7 @@ $csv = file_get_contents($this->get('kernel')->getRootDir() . DIR_SEP . ".." . D
         }
         foreach ($fields['attributes'] as $index => $field) {
             if ($values[$index] != '') {
-                $attributes[$field['key']][$field['subKey']][$field['langId']] = $values[$index]; 
+                $attributes[$field['optionsId']][$field['subKey']][$field['langId']] = $values[$index]; 
             }
         }
         return ['product' => $product, 'productsDescription' => $productsDescription, 'attributes' => $attributes];
@@ -239,7 +255,9 @@ $csv = file_get_contents($this->get('kernel')->getRootDir() . DIR_SEP . ".." . D
         $productsFields = $em->getClassMetadata('ShopBundle:Product')->getColumnNames();
 
         return array_map(function($el) {
-            return str_replace('products_', '', $el);
+            $newEl = str_replace('products_', '', $el);
+            $this->dbProductsFields[$newEl] = $el;
+            return $newEl;
         }, $productsFields);
     }
 
@@ -247,7 +265,9 @@ $csv = file_get_contents($this->get('kernel')->getRootDir() . DIR_SEP . ".." . D
     {
         $productsDescriptionFields = $em->getClassMetadata('ShopBundle:ProductsDescription')->getColumnNames();
         return array_map(function($el) {
-            return str_replace('products_', '', $el);
+            $newEl = str_replace('products_', '', $el);
+            $this->dbProductsDescriptionFields[$newEl] = $el;
+            return $newEl;
         }, $productsDescriptionFields);
     }
 
@@ -316,8 +336,8 @@ $csv = file_get_contents($this->get('kernel')->getRootDir() . DIR_SEP . ".." . D
         * Make an array $langKeyItem = ['lang' => <langCode>, 'item' => <attributeName>]
         */
         $langKeyItem = $this->langKeyItem($attribute);
-        if (in_array($langKeyItem['item'], $poCsvNames)) {
-            $attributeArray = ['key' => $langKeyItem['item'], 'subKey' => $langKeyItem['subKey'], 'langId' => $langKeyItem['lang'], 'action' => $action, 'value' => ''];
+        if (isset($poCsvNames[$langKeyItem['item']])) {
+            $attributeArray = ['key' => $langKeyItem['item'], 'optionsId' => $poCsvNames[$langKeyItem['item']], 'subKey' => $langKeyItem['subKey'], 'langId' => $langKeyItem['lang'], 'action' => $action, 'value' => ''];
         }
         else {
             $this->errors[]= 'Attribut: \'' . $langItem['item'] . '\' ist als Schlüssel nicht zugelassen.';
@@ -353,16 +373,17 @@ $csv = file_get_contents($this->get('kernel')->getRootDir() . DIR_SEP . ".." . D
 
     protected function getPoCsvNames($em)
     {
+        $poCsvNames = array();
         $result = $em
             ->createQuery('
-                SELECT pocn.productsOptionsCsvName 
+                SELECT pocn.productsOptionsId, pocn.productsOptionsCsvName 
                 FROM ShopBundle:ProductsOptionsCsvName pocn
             ')
             ->getResult();
-        $poCsvNames = array_map(function($productsOption)
-        {
-            return $productsOption['productsOptionsCsvName'];
-        }, $result);
+        foreach($result as $pocn) {
+            $poCsvNames[$pocn['productsOptionsCsvName']] = $pocn['productsOptionsId'];
+        }
+
         return $poCsvNames;
     }
 
@@ -379,11 +400,14 @@ $csv = file_get_contents($this->get('kernel')->getRootDir() . DIR_SEP . ".." . D
     {
         foreach ($products as $product) {
             $this->saveProduct($em, $product);
+if(!isset($product['product']['id'])) $product['product']['id']='1';
+            $this->saveAttributes($product['product']['id'], $product['attributes']);
         }
     }
 
     protected function saveProduct($em, $productData)
     {
+return true;
 $debug = $this->get('debug');
         $product = $em
         ->getRepository('ShopBundle:Product')
@@ -436,5 +460,28 @@ $debug = $this->get('debug');
         $debug->pr($newArray, 5);
        // $debug->pr($result[2], 4);
         exit;
+    }
+
+    protected function saveAttributes($productsId, $attributes)
+    {
+        $this->createProductsOptionsValuesIds($attributes);
+    }
+
+    protected function createProductsOptionsValuesIds(&$attributes)
+    {
+        $debug = $this->get('debug');
+        // $debug->pr($attributes);
+        $query = '
+            SELECT as name, pov.productsOptionsValuesId
+        ';
+
+
+        foreach ($attributes as $optionsId => $attributeArr) {
+            foreach($attributeArr as $optionValueIndex => $attribute)
+            {
+                $debug->pr($attribute);
+                $query = '';
+            }
+        }        
     }
 }
