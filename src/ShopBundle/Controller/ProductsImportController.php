@@ -401,7 +401,7 @@ $csv = file_get_contents($this->get('kernel')->getRootDir() . DIR_SEP . ".." . D
         foreach ($products as $product) {
             $this->saveProduct($em, $product);
 if(!isset($product['product']['id'])) $product['product']['id']='1';
-            $this->saveAttributes($product['product']['id'], $product['attributes']);
+            $this->saveAttributes($em, $product['product']['id'], $product['attributes']);
         }
     }
 
@@ -462,26 +462,86 @@ $debug = $this->get('debug');
         exit;
     }
 
-    protected function saveAttributes($productsId, $attributes)
+    protected function saveAttributes($em, $productsId, $attributes)
     {
-        $this->createProductsOptionsValuesIds($attributes);
+        $this->createProductsOptionsValuesIds($em, $attributes);
     }
 
-    protected function createProductsOptionsValuesIds(&$attributes)
+    protected function createProductsOptionsValuesIds($em, &$attributes)
     {
         $debug = $this->get('debug');
-        // $debug->pr($attributes);
-        $query = '
-            SELECT as name, pov.productsOptionsValuesId
-        ';
-
-
-        foreach ($attributes as $optionsId => $attributeArr) {
-            foreach($attributeArr as $optionValueIndex => $attribute)
-            {
-                $debug->pr($attribute);
-                $query = '';
+        if ($attributes) {
+            $selectFrom = '
+                SELECT pov.productsOptionsValuesId
+                FROM ShopBundle:ProductsOptionsValue pov
+            ';
+            $toWrite = false;
+            foreach ($attributes as $key0 => $attributeArray) {
+                foreach ($attributeArray as $key1 => $attribute) {
+                    $joins = array();
+                    $where = '';
+                    $i = 0;
+                    foreach ($attribute as $langId => $item) {
+                        if ($i == 0) {
+                            $where = " WHERE pov.productsOptionsValuesName='" . $item . "' AND pov.languageId='" . $langId . "'";
+                        }
+                        else {
+                            $joins[]= "INNER JOIN ShopBundle:ProductsOptionsValue pov" . $i . " WITH pov" . $i . ".productsOptionsValuesId=pov.productsOptionsValuesId AND pov" . $i . ".productsOptionsValuesName= '" . $item . "' AND pov" . $i . ".languageId = '" . $langId . "'";
+                        }
+                        $i++;
+                    }
+                    $query = $selectFrom . 
+                             implode("\n", $joins) . 
+                             $where
+                    ;
+                    $result = $em
+                        ->createQuery($query)
+                        ->getResult();
+                    if (!empty($result)) {
+                        $attributes[$key0][$key1] = intval($result[0]['productsOptionsValuesId']);
+                    }
+                    else {
+                        $toWrite = true;
+                    }
+                }
             }
-        }        
+        $debug->pr($attributes);
+            if ($toWrite) {
+                $em->getConnection()->beginTransaction();
+                $maxId = $this->getMaxId($em, 'ShopBundle:ProductsOptionsValue', 'productsOptionsValuesId');
+                foreach ($attributes as $key0 => $attributeArray) {
+                    foreach ($attributeArray as $key1 => $attribute) {
+                        if (is_array($attribute)) {
+                            foreach ($attribute as $langId => $item) {
+                                $pov = new ProductsOptionsValue();
+                                $pov->setProductsOptionsValuesId(++$maxId);
+                                $pov->setLanguageId((int) $langId);
+                                $pov->setProductsOptionsValuesName($item);
+                                $em->persist($pov);
+                            }
+                            $attributes[$key0][$key1] = $maxId;
+                        }
+                    }
+                }
+                $em->flush();
+                $em->getConnection()->commit();
+            }
+        }
+echo "<hr>";
+$debug->pr($attributes);
+    }
+
+    protected function getMaxId($em, $entity, $field)
+    {
+        $result = $em
+            ->createQuery("
+                SELECT MAX(e." . $field . ") AS maxId
+                FROM " . $entity . " e
+            ")
+            ->getResult()
+        ;
+        $maxId = $result[0]['maxId'];
+        echo "MaxId: " . $maxId . "<br>";
+        return $maxId;
     }
 }
