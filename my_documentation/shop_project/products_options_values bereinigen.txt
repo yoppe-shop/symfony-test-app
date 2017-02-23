@@ -1,0 +1,12 @@
+Alle products_options_values löschen, für die kein Bezug von products_attributes vorhanden ist:
+So ähnlich wie:
+
+DELETE products_options_values
+FROM products_options_values
+WHERE pov1.products_options_values_id IN
+(
+    SELECT products_options_values_id
+    FROM `products_options_values` pov2
+    LEFT JOIN products_attributes pa ON pa.options_values_id = pov2.products_options_values_id
+    WHERE pa.products_attributes_id IS NULL
+);

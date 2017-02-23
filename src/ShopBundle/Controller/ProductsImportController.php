@@ -145,6 +145,9 @@ $csv = file_get_contents($this->get('kernel')->getRootDir() . DIR_SEP . ".." . D
         return $lines;
     }
 
+    /**
+    * Creates and returns ONE value array for exactly ONE product:
+    */
     protected function createProductsDataArray($em, &$fields, &$line, $numIndexes, $lineNo)
     {
         $values = explode($this->csvFieldSep, $line);
@@ -157,16 +160,20 @@ $csv = file_get_contents($this->get('kernel')->getRootDir() . DIR_SEP . ".." . D
 
         foreach ($fields['product'] as $index => $field) {
             if ($values[$index] != '') {
-                $product[$field['key']] = $values[$index];
+                $product[$this->dbProductsFields[$field['key']]] = $values[$index];
             }
         }
         foreach ($fields['productsDescription'] as $index => $field) {
             if ($values[$index] != '') {
-                $productsDescription[$field['key']][$field['langId']] = $values[$index]; 
+                $productsDescription[$this->dbProductsDescriptionFields[$field['key']]][$field['langId']] = $values[$index]; 
             }
         }
         foreach ($fields['attributes'] as $index => $field) {
             if ($values[$index] != '') {
+                if (!isset($attributes[$field['optionsId']]['action']))
+                {
+                    $attributes[$field['optionsId']]['action'] = $field['action'];
+                }
                 $attributes[$field['optionsId']][$field['subKey']][$field['langId']] = $values[$index]; 
             }
         }
@@ -399,14 +406,15 @@ $csv = file_get_contents($this->get('kernel')->getRootDir() . DIR_SEP . ".." . D
     protected function saveProducts($em, $products)
     {
         foreach ($products as $product) {
+$debug = $this->get('debug');
+if(!isset($product['product']['products_id'])) $product['product']['products_id']='1';
             $this->saveProduct($em, $product);
-if(!isset($product['product']['id'])) $product['product']['id']='1';
-            $this->saveAttributes($em, $product['product']['id'], $product['attributes']);
         }
     }
 
-    protected function saveProduct($em, $productData)
+    protected function saveProduct($em, $product)
     {
+        $this->saveAttributes($em, $product['product']['products_id'], $product['attributes']);
 return true;
 $debug = $this->get('debug');
         $product = $em
@@ -464,7 +472,56 @@ $debug = $this->get('debug');
 
     protected function saveAttributes($em, $productsId, $attributes)
     {
+        $debug = $this->get('debug');
+        $optionsIdsToRemove = array();
+
+        /**
+        * Collect delete optionsIds and remove from array:
+        */
+        foreach ($attributes as $optionsId => $attributeArray) {
+            if ($attributeArray['action'] == '-') {
+                $optionsIdsToRemove[] = $optionsId;
+                unset($attributes[$optionsId]);
+            }
+        }
+
+        /**
+        * Transform options values names into options values ids:
+        */
         $this->createProductsOptionsValuesIds($em, $attributes);
+
+        $optionsToRemoveTest = array();
+        foreach ($attributes as $optionsId => $attributeArray) {
+            if ($attributeArray['action'] != '+') {
+                $optionsToRemoveTest[]
+            }
+        }
+        if (!empty($optionsIdsToRemove)) {
+            $optionsIdsToRemove = '\'' . implode('\', \'', $optionsIdsToRemove) . '\'';
+            $productsAttributes = $em
+                ->createQuery("
+                    SELECT pa
+                    FROM ShopBundle:ProductsAttribute pa 
+                    WHERE pa.productsId= '" . $productsId . "' AND pa.optionsId IN (" . $this->createInTerm($optionsIdsToRemove) . ")
+                ")
+                ->getResult()
+            ;
+        }
+
+        if (!empty($attributes)) {
+
+            /**
+            * Replace attributes values by valuesIds:
+            */
+            $this->createProductsOptionsValuesIds($em, $attributes);
+
+            /**
+            * Save productsAttributes:
+            */
+            foreach ($attributes as $key => $attributeArray) {
+                // DS products_attributes einfügen
+            }
+        }
     }
 
     protected function createProductsOptionsValuesIds($em, &$attributes)
@@ -505,7 +562,6 @@ $debug = $this->get('debug');
                     }
                 }
             }
-        $debug->pr($attributes);
             if ($toWrite) {
                 $em->getConnection()->beginTransaction();
                 $maxId = $this->getMaxId($em, 'ShopBundle:ProductsOptionsValue', 'productsOptionsValuesId');
@@ -543,5 +599,10 @@ $debug->pr($attributes);
         $maxId = $result[0]['maxId'];
         echo "MaxId: " . $maxId . "<br>";
         return $maxId;
+    }
+
+    protected function createInTerm($value)
+    {
+        return '\'' . implode('\', \'', $value) . '\'';
     }
 }
