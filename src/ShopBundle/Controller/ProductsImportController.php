@@ -485,15 +485,39 @@ $debug = $this->get('debug');
             }
         }
 
+// BIS HIERHIN SIND ALLE ZU LÖSCHENDEN DATENSÄTZE IN $optionsIdsToRemove
+// REGISTRIERT UND AUS DEM ARRAY $attributes RAUSGENOMMEN
+
         /**
         * Transform options values names into options values ids:
         */
         $this->createProductsOptionsValuesIds($em, $attributes);
 
+        /**
+        * Load all datasets from productsAttributes and compare to $attributes:
+        */
+        $dbAttributes = $this->getDbProductsAttributes($productsId);
+
+        /**
+        * $dbAttributes mit $attributes vergleichen:
+        * Wenn ein DS in dbAttributes enthalten ist:
+        *     Aus $attributes löschen
+        * Wenn ein ein DS nicht in $dbAttributes enthalten ist und action == '':
+        *     Aus DB löschen
+        */
+        $debug->pr($dbAttributes); exit;
+
         $optionsToRemoveTest = array();
+
         foreach ($attributes as $optionsId => $attributeArray) {
             if ($attributeArray['action'] != '+') {
-                $optionsToRemoveTest[]
+                $or = '';
+                foreach ($attributeArray as $key => $optionsValuesId)
+                {
+                    $optionsIdsToRemove[] = ['optionsId' => $optionsId, 'key' => $key];
+                    $where = $or . "(pa.optionsId = '" . $optionsId . "' AND pa.optionsValuesId='" . $optionsValuesId . "')";
+                    $or = ' OR ';
+                }
             }
         }
         if (!empty($optionsIdsToRemove)) {
@@ -526,47 +550,56 @@ $debug = $this->get('debug');
 
     protected function createProductsOptionsValuesIds($em, &$attributes)
     {
-        $debug = $this->get('debug');
-        if ($attributes) {
+        if (!empty($attributes)) {
             $selectFrom = '
                 SELECT pov.productsOptionsValuesId
                 FROM ShopBundle:ProductsOptionsValue pov
             ';
             $toWrite = false;
-            foreach ($attributes as $key0 => $attributeArray) {
-                foreach ($attributeArray as $key1 => $attribute) {
-                    $joins = array();
-                    $where = '';
-                    $i = 0;
-                    foreach ($attribute as $langId => $item) {
-                        if ($i == 0) {
-                            $where = " WHERE pov.productsOptionsValuesName='" . $item . "' AND pov.languageId='" . $langId . "'";
+            foreach ($attributes as $optionId => $attributeArray)
+            {
+                foreach ($attributeArray as $key => $attribute)
+                {
+                    if ((string) $key != 'action')
+                    {
+                        $joins = array();
+                        $where = '';
+                        $i = 0;
+
+                        foreach ($attribute as $langId => $item)
+                        {
+                            if ( $i == 0 )
+                            {
+                                $where = " WHERE pov.productsOptionsValuesName='" . $item . "' AND pov.languageId='" . $langId . "'";
+                            }
+                            else {
+                                $joins [ ] = "INNER JOIN ShopBundle:ProductsOptionsValue pov" . $i . " WITH pov" . $i . ".productsOptionsValuesId=pov.productsOptionsValuesId AND pov" . $i . ".productsOptionsValuesName= '" . $item . "' AND pov" . $i . ".languageId = '" . $langId . "'";
+                            }
+                            $i ++;
+                        }
+
+                        $query = $selectFrom . 
+                             implode ( "\n", $joins ) . 
+                             $where
+                        ;
+echo $query . "<hr>";
+                        $result = $em
+                            ->createQuery($query)
+                            ->getResult();
+                        if (!empty($result)) {
+                            $attributes[$optionId][$key] = intval($result[0]['productsOptionsValuesId']);
                         }
                         else {
-                            $joins[]= "INNER JOIN ShopBundle:ProductsOptionsValue pov" . $i . " WITH pov" . $i . ".productsOptionsValuesId=pov.productsOptionsValuesId AND pov" . $i . ".productsOptionsValuesName= '" . $item . "' AND pov" . $i . ".languageId = '" . $langId . "'";
+                            $toWrite = true;
                         }
-                        $i++;
-                    }
-                    $query = $selectFrom . 
-                             implode("\n", $joins) . 
-                             $where
-                    ;
-                    $result = $em
-                        ->createQuery($query)
-                        ->getResult();
-                    if (!empty($result)) {
-                        $attributes[$key0][$key1] = intval($result[0]['productsOptionsValuesId']);
-                    }
-                    else {
-                        $toWrite = true;
                     }
                 }
             }
             if ($toWrite) {
                 $em->getConnection()->beginTransaction();
                 $maxId = $this->getMaxId($em, 'ShopBundle:ProductsOptionsValue', 'productsOptionsValuesId');
-                foreach ($attributes as $key0 => $attributeArray) {
-                    foreach ($attributeArray as $key1 => $attribute) {
+                foreach ($attributes as $optionId => $attributeArray) {
+                    foreach ($attributeArray as $key => $attribute) {
                         if (is_array($attribute)) {
                             foreach ($attribute as $langId => $item) {
                                 $pov = new ProductsOptionsValue();
@@ -575,7 +608,7 @@ $debug = $this->get('debug');
                                 $pov->setProductsOptionsValuesName($item);
                                 $em->persist($pov);
                             }
-                            $attributes[$key0][$key1] = $maxId;
+                            $attributes[$optionId][$key] = $maxId;
                         }
                     }
                 }
@@ -585,6 +618,24 @@ $debug = $this->get('debug');
         }
 echo "<hr>";
 $debug->pr($attributes);
+    }
+
+    protected function getOptionsIdsToRemove($em, &$attributes)
+    {
+        foreach ($attributes as $optionsId => $attributeArray)
+        {
+            if ($attributeArray['action'] != '+')
+            {
+                $or = '';
+                foreach ($attributeArray as $key => $optionsValuesId)
+                {
+                    $optionsIdsToRemove[] = ['optionsId' => $optionsId, 'key' => $key];
+                    $where = $or . "(pa.optionsId = '" . $optionsId . "' AND pa.optionsValuesId='" . $optionsValuesId . "')";
+                    $or = ' OR ';
+               }
+            }
+        }
+
     }
 
     protected function getMaxId($em, $entity, $field)
@@ -599,6 +650,19 @@ $debug->pr($attributes);
         $maxId = $result[0]['maxId'];
         echo "MaxId: " . $maxId . "<br>";
         return $maxId;
+    }
+
+    protected function getDbProductsAttributes($productsId)
+    {
+        return $em
+            ->createQuery("
+                SELECT pa 
+                FROM ShopBundle:ProductsAttribute pa 
+                WHERE pa.productsId='" . $productsId . "'
+                ORDER BY pa.optionsId ASC            
+            ")
+            ->getResult()
+        ;
     }
 
     protected function createInTerm($value)
