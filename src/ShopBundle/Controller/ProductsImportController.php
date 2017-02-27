@@ -473,79 +473,27 @@ $debug = $this->get('debug');
     protected function saveAttributes($em, $productsId, $attributes)
     {
         $debug = $this->get('debug');
-        $optionsIdsToRemove = array();
 
         /**
-        * Collect delete optionsIds and remove from array:
-        */
-        foreach ($attributes as $optionsId => $attributeArray) {
-            if ($attributeArray['action'] == '-') {
-                $optionsIdsToRemove[] = $optionsId;
-                unset($attributes[$optionsId]);
-            }
-        }
-
-// BIS HIERHIN SIND ALLE ZU LÖSCHENDEN DATENSÄTZE IN $optionsIdsToRemove
-// REGISTRIERT UND AUS DEM ARRAY $attributes RAUSGENOMMEN
-
-        /**
-        * Transform options values names into options values ids:
+        * 2nd step: Transform options values names into options values ids:
         */
         $this->createProductsOptionsValuesIds($em, $attributes);
 
         /**
-        * Load all datasets from productsAttributes and compare to $attributes:
+        * Intermediate step: Load all datasets from productsAttributes and compare to $attributes:
         */
-        $dbAttributes = $this->getDbProductsAttributes($productsId);
+        $dbAttributes = $this->getDbProductsAttributes($em, $productsId);
 
         /**
-        * $dbAttributes mit $attributes vergleichen:
-        * Wenn ein DS in dbAttributes enthalten ist:
-        *     Aus $attributes löschen
-        * Wenn ein ein DS nicht in $dbAttributes enthalten ist und action == '':
-        *     Aus DB löschen
+        * Remove each dataset from db where attributes must be replaced and which values are not 
+        * required as attribute set 
         */
-        $debug->pr($dbAttributes); exit;
+        $this->deleteToBeReplacedDbDss($em, $dbAttributes, $attributes);
 
-        $optionsToRemoveTest = array();
-
-        foreach ($attributes as $optionsId => $attributeArray) {
-            if ($attributeArray['action'] != '+') {
-                $or = '';
-                foreach ($attributeArray as $key => $optionsValuesId)
-                {
-                    $optionsIdsToRemove[] = ['optionsId' => $optionsId, 'key' => $key];
-                    $where = $or . "(pa.optionsId = '" . $optionsId . "' AND pa.optionsValuesId='" . $optionsValuesId . "')";
-                    $or = ' OR ';
-                }
-            }
-        }
-        if (!empty($optionsIdsToRemove)) {
-            $optionsIdsToRemove = '\'' . implode('\', \'', $optionsIdsToRemove) . '\'';
-            $productsAttributes = $em
-                ->createQuery("
-                    SELECT pa
-                    FROM ShopBundle:ProductsAttribute pa 
-                    WHERE pa.productsId= '" . $productsId . "' AND pa.optionsId IN (" . $this->createInTerm($optionsIdsToRemove) . ")
-                ")
-                ->getResult()
-            ;
-        }
-
-        if (!empty($attributes)) {
-
-            /**
-            * Replace attributes values by valuesIds:
-            */
-            $this->createProductsOptionsValuesIds($em, $attributes);
-
-            /**
-            * Save productsAttributes:
-            */
-            foreach ($attributes as $key => $attributeArray) {
-                // DS products_attributes einfügen
-            }
-        }
+        /**
+        * Remove each dataset from $attributes that is already in db:
+        */
+        $this->deleteExistingDSs($dbAttributes, $attributes);
     }
 
     protected function createProductsOptionsValuesIds($em, &$attributes)
@@ -582,7 +530,7 @@ $debug = $this->get('debug');
                              implode ( "\n", $joins ) . 
                              $where
                         ;
-echo $query . "<hr>";
+
                         $result = $em
                             ->createQuery($query)
                             ->getResult();
@@ -616,26 +564,6 @@ echo $query . "<hr>";
                 $em->getConnection()->commit();
             }
         }
-echo "<hr>";
-$debug->pr($attributes);
-    }
-
-    protected function getOptionsIdsToRemove($em, &$attributes)
-    {
-        foreach ($attributes as $optionsId => $attributeArray)
-        {
-            if ($attributeArray['action'] != '+')
-            {
-                $or = '';
-                foreach ($attributeArray as $key => $optionsValuesId)
-                {
-                    $optionsIdsToRemove[] = ['optionsId' => $optionsId, 'key' => $key];
-                    $where = $or . "(pa.optionsId = '" . $optionsId . "' AND pa.optionsValuesId='" . $optionsValuesId . "')";
-                    $or = ' OR ';
-               }
-            }
-        }
-
     }
 
     protected function getMaxId($em, $entity, $field)
@@ -652,7 +580,7 @@ $debug->pr($attributes);
         return $maxId;
     }
 
-    protected function getDbProductsAttributes($productsId)
+    protected function getDbProductsAttributes($em, $productsId)
     {
         return $em
             ->createQuery("
@@ -663,6 +591,71 @@ $debug->pr($attributes);
             ")
             ->getResult()
         ;
+    }
+
+    protected function deleteDbDss($em, $dbAttributes, $attributes)
+    {
+        $dbToRemove = array();
+
+        /**
+        * Delete when action is '-' or when action is '' and when there is no 
+        * ds in attributes like in db
+        */
+        foreach ($dbAttributes as $dbKey => $dbAttribute)
+        {
+            if (!isset($attibutes[$dbAttribute->getOptionsId()]))
+            {
+                $dbToRemove []= $dbKey;
+            }
+            elseif ($attibutes[$dbAttribute->getOptionsId()]['action'] == '-')
+            {
+                $dbToRemove []= $dbKey;
+                unset ($attributes[$dbAttribute->getOptionsId()]);
+            }
+            elseif ($attibutes[$dbAttribute->getOptionsId()]['action'] != '+')
+            {
+                $isExisting = false;
+                foreach ($attibutes[$dbAttribute->getOptionsId()] as $key => $optionsValuesId)
+                {
+                    if ($key != 'action' && $dbAttribute->getOptionsValuesId() == $optionsValuesId)
+                    {
+                        $isExisting = true;
+                    }
+                }
+                if (!$isExisting)
+                {
+                    $dbToRemove []= $dbKey;
+                }
+            }
+
+            foreach ($dbToRemove as $dbKey)
+            {
+                $em->remove($dbAttributes[$dbKey]);
+            }
+            $em->flush();
+        }
+    }
+
+    protected function deleteExistingDSs($dbAttributes, $attributes)
+    {
+        foreach($attributes as $optionsId => $attributeArray)
+        {
+
+            foreach($attributeArray as $key => $optionsValuesId)
+            {
+                foreach ($dbAttributes as $dbArrayKey => $dbAttribute)
+                {
+                    if 
+                    (
+                        $dbAttribute->getOptionsId == $optionsId &&
+                        $dbAttribute->getOptionsValuesId == $optionsValuesId
+                    )
+                    {
+                        unset ($attributes[$optionsId][$key]);
+                    }
+                }
+            }
+        }
     }
 
     protected function createInTerm($value)
