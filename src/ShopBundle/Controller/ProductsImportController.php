@@ -407,7 +407,7 @@ $csv = file_get_contents($this->get('kernel')->getRootDir() . DIR_SEP . ".." . D
     {
         foreach ($products as $product) {
 $debug = $this->get('debug');
-if(!isset($product['product']['products_id'])) $product['product']['products_id']='1';
+if(!isset($product['product']['products_id'])) $product['product']['products_id']='2';
             $this->saveProduct($em, $product);
         }
     }
@@ -473,7 +473,7 @@ $debug = $this->get('debug');
     protected function saveAttributes($em, $productsId, $attributes)
     {
         $debug = $this->get('debug');
-
+echo "Attributes vor der Bearbeitung: "; $debug->pr($attributes);
         /**
         * 2nd step: Transform options values names into options values ids:
         */
@@ -488,12 +488,14 @@ $debug = $this->get('debug');
         * Remove each dataset from db where attributes must be replaced and which values are not 
         * required as attribute set 
         */
-        $this->deleteToBeReplacedDbDss($em, $dbAttributes, $attributes);
+        $this->deleteDbDss($em, $dbAttributes, $attributes);
 
         /**
         * Remove each dataset from $attributes that is already in db:
         */
-        $this->deleteExistingDSs($dbAttributes, $attributes);
+        $this->deleteExistingDbDSsFromAttributesArray($dbAttributes, $attributes);
+
+echo "Attributes nach Bearbeitung: "; $debug->pr($attributes);
     }
 
     protected function createProductsOptionsValuesIds($em, &$attributes)
@@ -576,7 +578,6 @@ $debug = $this->get('debug');
             ->getResult()
         ;
         $maxId = $result[0]['maxId'];
-        echo "MaxId: " . $maxId . "<br>";
         return $maxId;
     }
 
@@ -596,28 +597,29 @@ $debug = $this->get('debug');
     protected function deleteDbDss($em, $dbAttributes, $attributes)
     {
         $dbToRemove = array();
-
+$debug = $this->get('debug');
         /**
         * Delete when action is '-' or when action is '' and when there is no 
         * ds in attributes like in db
         */
         foreach ($dbAttributes as $dbKey => $dbAttribute)
         {
-            if (!isset($attibutes[$dbAttribute->getOptionsId()]))
+            if (!isset($attributes[$dbAttribute->getOptionsId()]))
             {
                 $dbToRemove []= $dbKey;
             }
-            elseif ($attibutes[$dbAttribute->getOptionsId()]['action'] == '-')
+            elseif ($attributes[$dbAttribute->getOptionsId()]['action'] == '-')
             {
+echo $dbAttribute->getOptionsId(); $debug->pr($attributes[$dbAttribute->getOptionsId()]);
                 $dbToRemove []= $dbKey;
                 unset ($attributes[$dbAttribute->getOptionsId()]);
             }
-            elseif ($attibutes[$dbAttribute->getOptionsId()]['action'] != '+')
+            elseif ($attributes[$dbAttribute->getOptionsId()]['action'] != '+')
             {
                 $isExisting = false;
-                foreach ($attibutes[$dbAttribute->getOptionsId()] as $key => $optionsValuesId)
+                foreach ($attributes[$dbAttribute->getOptionsId()] as $key => $optionsValuesId)
                 {
-                    if ($key != 'action' && $dbAttribute->getOptionsValuesId() == $optionsValuesId)
+                    if ((string) $key != 'action' && $dbAttribute->getOptionsValuesId() == (int) $optionsValuesId)
                     {
                         $isExisting = true;
                     }
@@ -632,34 +634,40 @@ $debug = $this->get('debug');
             {
                 $em->remove($dbAttributes[$dbKey]);
             }
-            $em->flush();
+//            $em->flush();
         }
     }
 
-    protected function deleteExistingDSs($dbAttributes, $attributes)
+    protected function deleteExistingDbDSsFromAttributesArray($dbAttributes, $attributes)
     {
         foreach($attributes as $optionsId => $attributeArray)
         {
-
-            foreach($attributeArray as $key => $optionsValuesId)
+            if (isset($attributeArray['action']) && $attributeArray['action'] == '--')
             {
-                foreach ($dbAttributes as $dbArrayKey => $dbAttribute)
+                unset($attributes[$optionsId]);
+            }
+            else
+            {
+                foreach($attributeArray as $key => $optionsValuesId)
                 {
-                    if 
-                    (
-                        $dbAttribute->getOptionsId == $optionsId &&
-                        $dbAttribute->getOptionsValuesId == $optionsValuesId
-                    )
+                    foreach ($dbAttributes as $dbArrayKey => $dbAttribute)
                     {
-                        unset ($attributes[$optionsId][$key]);
+                        if 
+                        (
+                            $dbAttribute->getOptionsId() == $optionsId &&
+                            $dbAttribute->getOptionsValuesId() == $optionsValuesId
+                        )
+                        {
+                            unset ($attributes[$optionsId][$key]);
+                        }
                     }
                 }
             }
         }
     }
 
-    protected function createInTerm($value)
+    protected function createInTerm(Array $values)
     {
-        return '\'' . implode('\', \'', $value) . '\'';
+        return '\'' . implode('\', \'', $values) . '\'';
     }
 }
