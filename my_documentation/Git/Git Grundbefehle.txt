@@ -1,0 +1,45 @@
+GIT
+
+Repository anlegen:
+
+Im Projektordner eingeben:
+
+git init
+
+Dateien und Ordner ausschließen (z.B. Bilder- und Vendor-Ordner)
+
+.gitignore - Datei im Projektordner anlegen und Pfade eintragen
+
+Versionsmanagement:
+
+Status anzeigen:
+
+git status
+
+Dateien adden:
+
+git add * (alle) oder
+git add test.php (einzeln)
+
+Committen (Version erstellen):
+
+git commit -m "Erster Commit"
+
+Versionen anzeigen:
+
+git log
+
+Zu anderer Version wechseln:
+
+z.B. git checkout c128 (die ersten vier Zeichen vom Hash)
+
+
+Verbindung zum Remote:
+
+Dateien hochladen:
+
+git push origin master
+
+Dateien auf meinen Rechner mergen:
+
+git pull origin master

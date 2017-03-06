@@ -1,0 +1,5 @@
+Visual Studio Code und Git:
+
+Wenn Visual Studio Code angibt, dass Git scheinbar nicht installiert ist, den Pfad zur git.exe in den Visual Code-Einstellungen angeben:
+
+"git.path": "C:\\Users\\[WINDOWS_USER]\\AppData\\Local\\Programs\\Git\\bin\\git.exe"
