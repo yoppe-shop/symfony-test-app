@@ -1,0 +1,43 @@
+Promises können entscheiden, ob sie ein auflösendes Ergebnis zurück liefern oder ein Reject-Ergebnis:
+
+    const p1 = new Promise((resolve, reject) => {
+        if(1 === 1) {
+            resolve(1);
+        }
+        else
+        {
+            reject(2);
+        }
+    });
+
+Man kann dann über "then" über eine (resolve) oder über zwei mit Komma getrennten Funktionen (resolve und reject)
+das Ergebnis des Promise auffangen:
+
+p.then(onFulfilled, onRejected);
+
+Beispiel mit einer Funktion (im Reject-Fall wird eine Exception geworfen):
+
+    p1.then( v => {
+        console.log(v); // 1
+    });
+
+Beispiel mit beiden Funktionen:
+
+    p1.then( v => {
+        console.log(v); // 1
+    }, v => {
+        console.log(v);  // 2
+    });
+
+Da then die Promise zurückgibt, kann man sie auch verketten:
+
+p1.then(function(value) {
+  console.log(value); // 1
+  return value + 1;
+}).then(function(value) {
+  console.log(value); // 2
+});
+
+p1.then(function(value) {
+  console.log(value); // 1
+});
